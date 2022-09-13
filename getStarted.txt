@@ -1,4 +1,5 @@
 sudo pacman -S allegro
+gcc [source file(s)] -o [output] `pkg-config --libs allegro-5.0`
 
 https://github.com/liballeg/allegro_wiki/wiki/Quickstart
 https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace#introduction
