@@ -1,0 +1,4 @@
+sudo pacman -S allegro
+
+https://github.com/liballeg/allegro_wiki/wiki/Quickstart
+https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace#introduction
