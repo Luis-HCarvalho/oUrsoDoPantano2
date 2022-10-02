@@ -1,38 +1,30 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
 
-// tamanho do display
-#define displayWidth 880
-#define displayHeight 660
+#include "init.h"
+
 // tamanho mapa (quantidade de tiles)
-#define mapWidth 4
-#define mapHeight 4
+#define mapWidth 16
+#define mapHeight 16
 #define sizeTile 32 // tamanho em px dos tiles
 
-// função para teste de inicializações
-void must_init (bool testInit, const char * description) {
-    if (testInit)
-        return;
-    printf("erro na inicialização de %s\n", description);
-    exit(1);
-}
-
-// struct jogador
-typedef struct {
-    int x;  // cordenada x
-    int y;  // cordenada y
-    int speed; // velocidade de movimentação
-    int direc; // direção da movimentação
-    int playerAnim; // contador para estipular a velocidade da animação (transição entre sprites)
-} Player;
+// // struct jogador
+// typedef struct {
+//     int x;  // cordenada x
+//     int y;  // cordenada y
+//     int speed; // velocidade de movimentação
+//     int direc; // direção da movimentação
+//     int playerAnim; // contador para estipular a velocidade da animação (transição entre sprites)
+//     int health;
+//     int level;
+//     int xp;
+//     int damage;
+// } Player;
 
 
 int main () {
-    printf("hello");
+
     // inicializações 
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
@@ -62,10 +54,27 @@ int main () {
     must_init(playerImg4, "playerImg4");
 
     // mapa
-    int map[4][4] = {1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1};
+    int map[mapHeight][mapWidth] = {
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 'b', 't', 't', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 'b', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 'b', 't', 't', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+    };
 
-    ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");   // 0
-    ALLEGRO_BITMAP * tile2 = al_load_bitmap("./assets/tiles/tileTest2.png");  // 1
+    ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");   // t
+    ALLEGRO_BITMAP * tile2 = al_load_bitmap("./assets/tiles/tileTest2.png");  // b
 
     must_init(tile1, "tile1");
     must_init(tile2, "tile2");
@@ -78,11 +87,7 @@ int main () {
     
     // player
     Player player;
-    player.speed = 2;
-    player.direc = 0;
-    player.playerAnim = 0;
-    player.x = displayWidth / 2;   // cordenadas iniciais do player
-    player.y = displayHeight / 2;  // cordenadas iniciais do player
+    player = initPlayer(player);
 
     // variáveis para o loop principal
     bool done = false;
@@ -160,11 +165,11 @@ int main () {
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
-                    if (map[i][j] == 0) {
-                        al_draw_bitmap(tile1, (displayWidth / 2) + (j * sizeTile),  (displayHeight / 2) + (i * sizeTile), 0);
+                    if (map[i][j] == 't') {
+                        al_draw_bitmap(tile1, (j * sizeTile),  (i * sizeTile), 0);
                     }
                     else {
-                        al_draw_bitmap(tile2, (displayWidth / 2) + (j * sizeTile),  (displayHeight / 2) + (i * sizeTile), 0);
+                        al_draw_bitmap(tile2,  (j * sizeTile),  (i * sizeTile), 0);
                     }
                 }
             }
