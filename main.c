@@ -8,6 +8,10 @@
 // tamanho do display
 #define displayWidth 880
 #define displayHeight 660
+// tamanho mapa (quantidade de tiles)
+#define mapWidth 4
+#define mapHeight 4
+#define sizeTile 32 // tamanho em px dos tiles
 
 // função para teste de inicializações
 void must_init (bool testInit, const char * description) {
@@ -56,6 +60,16 @@ int main () {
     must_init(playerImg2, "playerImg2");
     must_init(playerImg3, "playerImg3");
     must_init(playerImg4, "playerImg4");
+
+    // mapa
+    int map[4][4] = {1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1};
+
+    ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");   // 0
+    ALLEGRO_BITMAP * tile2 = al_load_bitmap("./assets/tiles/tileTest2.png");  // 1
+
+    must_init(tile1, "tile1");
+    must_init(tile2, "tile2");
+
 
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -142,6 +156,18 @@ int main () {
         if(redraw && al_is_event_queue_empty(queue)) {
             // limpa a tela
             al_clear_to_color(al_map_rgb(0, 0, 0));
+
+            // construção do mapa (coloca os tiles no lugar)
+            for (int i = 0; i < mapHeight; i++) {
+                for (int j = 0; j < mapWidth; j++) {
+                    if (map[i][j] == 0) {
+                        al_draw_bitmap(tile1, (displayWidth / 2) + (j * sizeTile),  (displayHeight / 2) + (i * sizeTile), 0);
+                    }
+                    else {
+                        al_draw_bitmap(tile2, (displayWidth / 2) + (j * sizeTile),  (displayHeight / 2) + (i * sizeTile), 0);
+                    }
+                }
+            }
 
             // desenha a sprite do player
             if (player.playerAnim < 10) {
