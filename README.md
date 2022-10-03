@@ -2,8 +2,8 @@
 
 <h3>Como rodar o jogo: </h3>
 <ul>
-  <li>linux: digite no terminal "make plataform=linux"</li>
-  <li>MacOS: digite no terminal "make plataform=macos"</li>
+  <li>(Linux) Digite no terminal:  "make plataform=linux"</li>
+  <li>(MacOS) Digite no terminal:  "make plataform=macos"</li>
 </ul>
 
 
