@@ -3,25 +3,12 @@
 #include <allegro5/allegro_image.h>
 
 #include "init.h"
+#include "combat.h"
 
 // tamanho mapa (quantidade de tiles)
 #define mapWidth 16
 #define mapHeight 16
 #define sizeTile 32 // tamanho em px dos tiles
-
-// // struct jogador
-// typedef struct {
-//     int x;  // cordenada x
-//     int y;  // cordenada y
-//     int speed; // velocidade de movimentação
-//     int direc; // direção da movimentação
-//     int playerAnim; // contador para estipular a velocidade da animação (transição entre sprites)
-//     int health;
-//     int level;
-//     int xp;
-//     int damage;
-// } Player;
-
 
 int main () {
 
@@ -52,6 +39,17 @@ int main () {
     must_init(playerImg2, "playerImg2");
     must_init(playerImg3, "playerImg3");
     must_init(playerImg4, "playerImg4");
+
+    // carrega os sprites de movimentação do troll
+    ALLEGRO_BITMAP * trollImg1 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_1.png");
+    ALLEGRO_BITMAP * trollImg2 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_2.png");
+    ALLEGRO_BITMAP * trollImg3 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_3.png");
+    ALLEGRO_BITMAP * trollImg4 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_4.png");
+
+    must_init(trollImg1, "trollImg1");
+    must_init(trollImg2, "trollImg2");
+    must_init(trollImg3, "trollImg3");
+    must_init(trollImg4, "trollImg4");
 
     // mapa
     int map[mapHeight][mapWidth] = {
@@ -89,6 +87,10 @@ int main () {
     Player player;
     player = initPlayer(player);
 
+    // troll
+    Monster troll;
+    troll = initMonster(troll, 100, 100, 5);
+
     // variáveis para o loop principal
     bool done = false;
     bool redraw = true;
@@ -103,7 +105,8 @@ int main () {
         switch(event.type)
         {
             case ALLEGRO_EVENT_TIMER:
-                // game logic goes here.
+                // logica do jogo
+                troll = monsterFollow(troll, player);
                 redraw = true;
                 break;
 
@@ -161,7 +164,6 @@ int main () {
         if(redraw && al_is_event_queue_empty(queue)) {
             // limpa a tela
             al_clear_to_color(al_map_rgb(0, 0, 0));
-
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
@@ -173,22 +175,27 @@ int main () {
                     }
                 }
             }
+            al_draw_bitmap(trollImg1, troll.x, troll.y, 0);
 
             // desenha a sprite do player
             if (player.playerAnim < 10) {
                 al_draw_bitmap(playerImg1, player.x, player.y, player.direc);
+                al_draw_bitmap(trollImg1, troll.x, troll.y, 0);
                 player.playerAnim++;
             }
             else if (player.playerAnim < 20) {
                 al_draw_bitmap(playerImg2, player.x, player.y, player.direc);
+                al_draw_bitmap(trollImg2, troll.x, troll.y, 0);
                 player.playerAnim++;
             }
             else if (player.playerAnim < 30) {
                 al_draw_bitmap(playerImg3, player.x, player.y, player.direc);
+                al_draw_bitmap(trollImg3, troll.x, troll.y, 0);
                 player.playerAnim++;
             }
             else {
                 al_draw_bitmap(playerImg4, player.x, player.y, player.direc);
+                al_draw_bitmap(trollImg4, troll.x, troll.y, 0);
                 player.playerAnim = 0;
                 
             }

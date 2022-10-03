@@ -22,3 +22,32 @@ Player initPlayer (Player player) {
 
     return player;
 }
+
+Monster initMonster (Monster monster, int x, int y, int rank) {
+    monster.x = x;  // cordenada x
+    monster.y = y;  // cordenada y
+    monster.direc = 0;// direção da movimentação
+    switch (rank) {
+        case 1:     // golem
+            monster.health = 200;
+            monster.damage = 40;
+            break;
+        case 2:
+            monster.health = 150;
+            monster.damage = 20;
+            break;
+        case 3:
+            monster.health = 100;
+            monster.damage = 20;
+            break;
+        case 4:
+            monster.health = 80;
+            monster.damage = 10;
+            break;
+        case 5:
+            monster.health = 50;
+            monster.damage = 5;
+            break;
+    }
+    return monster;
+}
