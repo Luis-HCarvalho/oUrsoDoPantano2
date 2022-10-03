@@ -1,6 +1,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "init.h"
 #include "combat.h"
@@ -16,6 +17,7 @@ int main () {
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
     must_init(al_init_image_addon(), "imgageAddon");
+    must_init(al_init_primitives_addon(), "primitives");
 
     ALLEGRO_TIMER * timer = al_create_timer(1.0 / 30.0);
     must_init(timer, "timer");
@@ -164,6 +166,8 @@ int main () {
         if(redraw && al_is_event_queue_empty(queue)) {
             // limpa a tela
             al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
@@ -175,7 +179,6 @@ int main () {
                     }
                 }
             }
-            al_draw_bitmap(trollImg1, troll.x, troll.y, 0);
 
             // desenha a sprite do player
             if (player.playerAnim < 10) {
@@ -199,6 +202,18 @@ int main () {
                 player.playerAnim = 0;
                 
             }
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 5, 5, 0, "LEVEL %d", player.level);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 80, 5, 0, "XP %d", player.xp);
+
+            player = damageTaken (troll, player);
+
+            if (player.health < 0) {
+                done = true;
+            }
+            else {
+                al_draw_filled_rectangle(10, 20, player.health, 30, al_map_rgba_f(255, 0, 0, 0.5));
+            }
+
             al_flip_display();
 
             redraw = false;
@@ -215,6 +230,10 @@ int main () {
     al_destroy_bitmap(playerImg2);
     al_destroy_bitmap(playerImg3);
     al_destroy_bitmap(playerImg4);
+    al_destroy_bitmap(trollImg1);
+    al_destroy_bitmap(trollImg2);
+    al_destroy_bitmap(trollImg3);
+    al_destroy_bitmap(trollImg4);
 
     return 0;
 }

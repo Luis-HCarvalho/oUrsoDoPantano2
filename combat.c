@@ -3,10 +3,6 @@
 
 // monstro segue o player se as cordenadas forem iguais o player leva dano
 Monster monsterFollow (Monster monster, Player player) {
-    if (monster.x == player.x && monster.y == player.y) {
-        player.health -= monster.damage;
-    }
-    
     if (monster.x > player.x) {
         monster.x--;
     }
@@ -21,4 +17,12 @@ Monster monsterFollow (Monster monster, Player player) {
         monster.y++;
     }
     return monster;
+}
+
+// dano levado ao encostar em monstros
+Player damageTaken (Monster monster, Player player) {
+    if (monster.x == player.x && monster.y == player.y) {
+        player.health -= monster.damage;
+    }
+    return player;
 }
