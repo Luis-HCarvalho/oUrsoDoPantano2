@@ -27,7 +27,8 @@ Monster initMonster (Monster monster, int x, int y, int rank) {
     monster.x = x;  // cordenada x
     monster.y = y;  // cordenada y
     monster.direc = 0;// direção da movimentação
-    switch (rank) {
+    monster.rank = rank;
+    switch (monster.rank) {
         case 1:     // golem
             monster.health = 200;
             monster.damage = 40;

@@ -26,13 +26,14 @@ typedef struct {
     int damage;
 } Player;
 
-// struct mob
+// struct monstro
 typedef struct {
     int x;  // cordenada x
     int y;  // cordenada y
     int direc; // direção da movimentação
     int health;
     int damage;
+    int rank;
 } Monster;
 
 // inicializa player

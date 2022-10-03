@@ -102,6 +102,8 @@ int main () {
     // variáveis para o loop principal
     bool done = false;
     bool redraw = true;
+    bool combat = false;
+    bool attack = false;
 
     ALLEGRO_EVENT event;
     al_start_timer(timer);
@@ -110,11 +112,24 @@ int main () {
     while (!done) {
         al_wait_for_event(queue, &event); // aguarda evento acontecer para que o programa continuar
 
-        switch(event.type)
-        {
+        switch(event.type) {
+            // logica do jogo
             case ALLEGRO_EVENT_TIMER:
-                // logica do jogo
-                troll = monsterFollow(troll, player);
+                if (troll.health <= 0) {
+                    player = kill(troll, player);
+                }
+                if (attack) {
+                    troll = monsterFollow(troll, player);
+                }
+
+                if ((( (player.x - troll.x) < 64 ) && ( (player.x - troll.x) > -64 )) && (((player.y - troll.y) < 64) && ((player.y - troll.y) > -64))) {
+                    combat = true; // combate habilitado
+                    attack = true;
+                }
+                else {
+                    combat = false;
+                }
+
                 redraw = true;
                 break;
 
@@ -158,6 +173,12 @@ int main () {
                         player.x += player.speed;
                         player.direc = 0;
                         break;
+                    case ALLEGRO_KEY_X: // nao esta funcionando
+                        if (combat) {
+                            troll = castSpell(troll, player);
+
+                        }
+                        break;
                     case ALLEGRO_KEY_ESCAPE:
                         done = true;
                         break;
@@ -192,30 +213,48 @@ int main () {
             // desenha a sprite do player
             if (player.playerAnim < 10) {
                 al_draw_bitmap(playerImg1, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg1, troll.x, troll.y, 0);
+                al_draw_bitmap(trollImg1, troll.x, troll.y, 0); //troll
                 player.playerAnim++;
             }
             else if (player.playerAnim < 20) {
                 al_draw_bitmap(playerImg2, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg2, troll.x, troll.y, 0);
+                al_draw_bitmap(trollImg2, troll.x, troll.y, 0);  //troll
                 player.playerAnim++;
             }
             else if (player.playerAnim < 30) {
                 al_draw_bitmap(playerImg3, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg3, troll.x, troll.y, 0);
+                al_draw_bitmap(trollImg3, troll.x, troll.y, 0);  //troll
                 player.playerAnim++;
             }
             else {
                 al_draw_bitmap(playerImg4, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg4, troll.x, troll.y, 0);
+                al_draw_bitmap(trollImg4, troll.x, troll.y, 0);  //troll
                 player.playerAnim = 0;
                 
             }
+            if (combat) {
+                al_draw_textf(font, al_map_rgb(255, 255, 255), 1000, 600, 0, "APERTE X PARA ATACAR");
+            }
+
+            if (attack) {
+                if (troll.health < 0) {
+                    //done = true;
+                    troll.health = 50;
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", troll.health);
+                    al_draw_filled_rectangle(1100, 20, troll.health + 1100, 30, al_map_rgba_f(255, 0, 0, 0.5));
+                }
+            }
+
+            // hud player
             al_draw_textf(font, al_map_rgb(255, 255, 255), 5, 5, 0, "LEVEL %d", player.level);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 80, 5, 0, "XP %d", player.xp);
-
+            
+            // se for pego pelo monstro leva dano
             player = damageTaken (troll, player);
 
+            // barra de vida
             if (player.health < 0) {
                 done = true;
             }
