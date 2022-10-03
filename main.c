@@ -7,8 +7,8 @@
 #include "combat.h"
 
 // tamanho mapa (quantidade de tiles)
-#define mapWidth 16
-#define mapHeight 16
+#define mapWidth 60
+#define mapHeight 20
 #define sizeTile 32 // tamanho em px dos tiles
 
 int main () {
@@ -55,29 +55,35 @@ int main () {
 
     // mapa
     int map[mapHeight][mapWidth] = {
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 'b', 't', 't', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 'b', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 'b', 't', 't', 't', 't', 'b', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
-        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w',
+        'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w',
+        'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w',
+        'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
+        't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't',
     };
 
-    ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");   // t
-    ALLEGRO_BITMAP * tile2 = al_load_bitmap("./assets/tiles/tileTest2.png");  // b
+    ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");      // t
+    ALLEGRO_BITMAP * tile2 = al_load_bitmap("./assets/tiles/tileTest2.png");     // b
+    ALLEGRO_BITMAP * brickWall = al_load_bitmap("./assets/tiles/brickWall.png"); // w
 
     must_init(tile1, "tile1");
     must_init(tile2, "tile2");
+    must_init(brickWall, "brickWall");
 
 
     // tipos de evento que reagiremos no programa
@@ -117,7 +123,8 @@ int main () {
                 if (event.keyboard.repeat) {
                     switch (event.keyboard.keycode) {
                         case ALLEGRO_KEY_UP:
-                            player.y  -= player.speed;
+                            if (player.y > 42)
+                                player.y  -= player.speed;
                             break;
                         case ALLEGRO_KEY_DOWN:
                             player.y += player.speed;
@@ -136,7 +143,9 @@ int main () {
             case ALLEGRO_EVENT_KEY_DOWN:
                 switch (event.keyboard.keycode) {
                     case ALLEGRO_KEY_UP:
-                        player.y  -= player.speed;
+                        if (player.y > 42) {
+                            player.y  -= player.speed;
+                        }
                         break;
                     case ALLEGRO_KEY_DOWN:
                         player.y += player.speed;
@@ -171,11 +180,11 @@ int main () {
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
-                    if (map[i][j] == 't') {
-                        al_draw_bitmap(tile1, (j * sizeTile),  (i * sizeTile), 0);
+                    if (map[i][j] == 'w') {
+                        al_draw_bitmap(brickWall, (j * sizeTile),  (i * sizeTile), 0);
                     }
-                    else {
-                        al_draw_bitmap(tile2,  (j * sizeTile),  (i * sizeTile), 0);
+                    else if (map[i][j] == 't') {
+                        al_draw_bitmap(tile1, (j * sizeTile),  (i * sizeTile), 0);
                     }
                 }
             }

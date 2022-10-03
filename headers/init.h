@@ -7,8 +7,8 @@
 #include <stdlib.h>
 
 // tamanho do display
-#define displayWidth 880
-#define displayHeight 660
+#define displayWidth 1280 // 40x32 tiles
+#define displayHeight 640 // 20x32 tiles
 
 // função para teste de inicializações
 void must_init (bool testInit, const char * description);
