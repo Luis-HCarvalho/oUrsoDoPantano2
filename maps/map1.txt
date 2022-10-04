@@ -1,5 +1,21 @@
-4 4
-mmmm
-mttm
-mttm
-mmmm
+20 20
+wwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwww
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
+tttttttttttttttttttt
