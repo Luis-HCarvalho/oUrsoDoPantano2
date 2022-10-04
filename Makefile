@@ -1,4 +1,4 @@
-all: $(plataform) run
+all: $(plataform) run clean
 
 linux:
 	@gcc -I ./headers/ *.c -o main.o $$(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags) -std=c99	
@@ -8,3 +8,6 @@ macos:
 
 run:
 	@./main.o
+
+clean:
+	@rm main.o
