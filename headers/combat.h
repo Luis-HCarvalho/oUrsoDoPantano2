@@ -8,7 +8,7 @@ Monster monsterFollow (Monster monster, Player player);
 Player damageTaken (Monster monster, Player player);
 
 // matou um monstro
-Player kill (Monster monster, Player player);
+Player killMonster (Monster monster, Player player);
 
 // lançar magia
 Monster castSpell (Monster monster, Player player);

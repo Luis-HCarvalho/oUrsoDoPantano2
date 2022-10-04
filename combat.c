@@ -29,7 +29,7 @@ Player damageTaken (Monster monster, Player player) {
 }
 
 // matou um monstro
-Player kill (Monster monster, Player player) {
+Player killMonster (Monster monster, Player player) {
     switch (monster.rank) {
         case 1:
             player.xp += 70;

@@ -116,7 +116,7 @@ int main () {
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
                 if (troll.health <= 0) {
-                    player = kill(troll, player);
+                    player = killMonster(troll, player);
                 }
                 if (attack) {
                     troll = monsterFollow(troll, player);
