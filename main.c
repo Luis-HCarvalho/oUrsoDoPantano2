@@ -11,12 +11,14 @@
 // fazer uma func para draw monster
 // fazer uma func para draw maps
 
-void gameMainLoop (
+int gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
     char map[][maxMapWidth],
     Mapsize mapsize,
+    ALLEGRO_BITMAP * tileWall,
+    ALLEGRO_BITMAP * tileFloor,
     ALLEGRO_BITMAP * trollImg1,
     ALLEGRO_BITMAP * trollImg2,
     ALLEGRO_BITMAP * trollImg3,
@@ -48,10 +50,16 @@ int main () {
     must_init(font, "font");
 
     // carrega os sprites de movimentação do player
-    ALLEGRO_BITMAP * playerImg1 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_1.png");
-    ALLEGRO_BITMAP * playerImg2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
-    ALLEGRO_BITMAP * playerImg3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
-    ALLEGRO_BITMAP * playerImg4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
+    // matrix criada para possibilitar a mudança dos sprites (test)
+    char * playerImgPath[4][50];
+    playerImgPath[0][0] = "./assets/characters/Wizard/wizard_idle_walk_1.png";
+    playerImgPath[1][0] = "./assets/characters/Wizard/wizard_idle_walk_2.png";
+    playerImgPath[2][0] = "./assets/characters/Wizard/wizard_idle_walk_3.png";
+    playerImgPath[3][0] = "./assets/characters/Wizard/wizard_idle_walk_4.png";
+    ALLEGRO_BITMAP * playerImg1 = al_load_bitmap(playerImgPath[0][0]);
+    ALLEGRO_BITMAP * playerImg2 = al_load_bitmap(playerImgPath[1][0]);
+    ALLEGRO_BITMAP * playerImg3 = al_load_bitmap(playerImgPath[2][0]);
+    ALLEGRO_BITMAP * playerImg4 = al_load_bitmap(playerImgPath[3][0]);
 
     must_init(playerImg1, "playerImg1");
     must_init(playerImg2, "playerImg2");
@@ -78,7 +86,6 @@ int main () {
     must_init(tile2, "tile2");
     must_init(brickWall, "brickWall");
 
-
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -89,34 +96,24 @@ int main () {
     Mapsize mapsize;    // tamanho do mapa
     mapsize = getMap("./maps/map1.txt", map, mapsize);  // pega o mapa e retorna o tamanho dele (h/w)
 
+    // mapa 1
     al_start_timer(timer);
-
-    // construção do mapa (coloca os tiles no lugar)
-    for (int i = 0; i < mapsize.height; i++) {
-        for (int j = 0; j < mapsize.width; j++) {
-            if (map[i][j] == 'w') {
-                al_draw_bitmap(brickWall, (j * sizeTile),  (i * sizeTile), 0);
-            }
-            else if (map[i][j] == 't') {
-                al_draw_bitmap(tile1, (j * sizeTile),  (i * sizeTile), 0);
-            }
-        }
-    }
-
     gameMainLoop(
-        timer,
-        queue,
-        font,
-        map,
-        mapsize,
-        trollImg1,
-        trollImg2,
-        trollImg3,
-        trollImg4,
-        playerImg1,
-        playerImg2,
-        playerImg3,
-        playerImg4
+            timer,
+            queue,
+            font,
+            map,
+            mapsize,
+            brickWall,  // tileWall
+            tile1,  // tileFloor
+            trollImg1,
+            trollImg2,
+            trollImg3,
+            trollImg4,
+            playerImg1,
+            playerImg2,
+            playerImg3,
+            playerImg4
     );
 
     // limpeza de recursos criados durante as inicializações
@@ -139,12 +136,15 @@ int main () {
 }
 
 // loop principal de execução do programa
-void gameMainLoop (
+// return flag para mudar o mapa e monstros
+int gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
     char map[][maxMapWidth],
     Mapsize mapsize,
+    ALLEGRO_BITMAP * tileWall,
+    ALLEGRO_BITMAP * tileFloor,
     ALLEGRO_BITMAP * trollImg1,
     ALLEGRO_BITMAP * trollImg2,
     ALLEGRO_BITMAP * trollImg3,
@@ -263,6 +263,18 @@ void gameMainLoop (
             break;
 
         if(redraw && al_is_event_queue_empty(queue)) {
+
+            // construção do mapa (coloca os tiles no lugar)
+            for (int i = 0; i < mapsize.height; i++) {
+                for (int j = 0; j < mapsize.width; j++) {
+                    if (map[i][j] == 'w') {
+                        al_draw_bitmap(tileWall, (j * sizeTile),  (i * sizeTile), 0);
+                    }
+                    else if (map[i][j] == 't') {
+                        al_draw_bitmap(tileFloor, (j * sizeTile),  (i * sizeTile), 0);
+                    }
+                }
+            }
             // desenha a sprite do player
             if (player.playerAnim < 10) {
                 al_draw_bitmap(playerImg1, player.x, player.y, player.direc);
