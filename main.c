@@ -174,15 +174,18 @@ int gameMainLoop (
     Player player;
     player = initPlayer(player);
 
-    // troll
+    // trolls
     Monster troll;
-    troll = initMonster(troll, 100, 100, 5, Troll);
+    troll = initMonster(troll, 100, 100, 5, Troll, 0);
+
+    Monster troll2;
+    troll2 = initMonster(troll2, 300, 300, 5, Troll, 1);
 
     // variáveis para o loop principal
     bool done = false;
     bool redraw = true;
     bool combatRange = false;
-    bool attack = false;
+    Monster monsterInRange;  // qual monstro esta no range de combate do player
     bool spell = false;
 
     // animação do player e monstros
@@ -201,10 +204,21 @@ int gameMainLoop (
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
                 if (troll.angry && troll.health > 0) {
-                    troll = monsterFollow(troll, player);
+                    monsterFollow(&troll, &player);
+                }
+
+                if (troll2.angry && troll2.health > 0) {
+                    monsterFollow(&troll2, &player);
                 }
 
                 combatRange = monsterAngry(&troll, player);
+                if (combatRange) {
+                    monsterInRange = troll;
+                }
+                combatRange = monsterAngry(&troll2, player);
+                if (combatRange) {
+                    monsterInRange = troll2;
+                }
 
                 redraw = true;
                 break;
@@ -261,9 +275,18 @@ int gameMainLoop (
                     case ALLEGRO_KEY_X:
                         if (combatRange) {
                             spell = true;
-                            troll = castSpell(troll, player);
-                            if (troll.health <= 0) {
-                                player = killMonster(troll, player);
+                            switch (monsterInRange.id) {
+                                case 0:
+                                    castSpell(&troll, player);
+                                    break;
+                                case 1:
+                                    castSpell(&troll2, player);
+                                    break;
+
+                            }
+                            //castSpell(&monsterInRange, player);
+                            if (monsterInRange.health <= 0) {
+                                player = killMonster(&monsterInRange, player);
                             }
                         }
                         break;
@@ -293,7 +316,7 @@ int gameMainLoop (
             }
 
             if (spell) {
-                al_draw_line(player.x + 16, player.y + 16, troll.x + 16, troll.y + 16, al_map_rgb_f(255, 255, 255), 2);
+                al_draw_line(player.x + 16, player.y + 16, monsterInRange.x + 16, monsterInRange.y + 16, al_map_rgb_f(255, 255, 255), 2);
                 spell = false;
             }
 
@@ -302,21 +325,31 @@ int gameMainLoop (
                 al_draw_bitmap(playerImg1, player.x, player.y, player.direc);
                 
                 monsterAnimation(troll, 1, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll2, 1, trollImg1, trollImg2, trollImg3, trollImg4);
                 animationTimer++;
             }
             else if (animationTimer < 20) {
                 al_draw_bitmap(playerImg2, player.x, player.y, player.direc);
+
                 monsterAnimation(troll, 2, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll2, 2, trollImg1, trollImg2, trollImg3, trollImg4);
+
                 animationTimer++;
             }
             else if (animationTimer < 30) {
                 al_draw_bitmap(playerImg3, player.x, player.y, player.direc);
+
                 monsterAnimation(troll, 3, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll2, 3, trollImg1, trollImg2, trollImg3, trollImg4);
+
                 animationTimer++;
             }
             else {
                 al_draw_bitmap(playerImg4, player.x, player.y, player.direc);
+
                 monsterAnimation(troll, 4, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll2, 4, trollImg1, trollImg2, trollImg3, trollImg4);
+
                 animationTimer = 0;   
             }
 
@@ -324,15 +357,16 @@ int gameMainLoop (
                 al_draw_textf(font, al_map_rgb(255, 255, 255), 1000, 600, 0, "APERTE X PARA ATACAR");
             }
 
-            if (troll.angry) {
-                if (troll.health < 0) {
+            if (monsterInRange.angry) {
+                if (monsterInRange.health < 0) {
                     //done = true;
 
-                    troll.health = 50;
+                    //implementar loop para checar monstros mortos e imple=mentar mecanica de morte
+                    monsterInRange.health = 50;
                 }
                 else {
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", troll.health);
-                    al_draw_filled_rectangle(1100, 20, troll.health + 1100, 30, al_map_rgba_f(255, 0, 0, 0.5));
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", monsterInRange.health);
+                    al_draw_filled_rectangle(1100, 20, monsterInRange.health + 1100, 30, al_map_rgba_f(255, 0, 255, 0.5));
                 }
             }
 
@@ -341,7 +375,7 @@ int gameMainLoop (
             al_draw_textf(font, al_map_rgb(255, 255, 255), 80, 5, 0, "XP %d", player.xp);
             
             // se for pego pelo monstro leva dano
-            player = damageTaken (troll, player);
+            //player = damageTaken (troll, player);
 
             // barra de vida
             if (player.health < 0) {

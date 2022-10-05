@@ -36,13 +36,14 @@ typedef struct {
     int rank;
     int type;
     bool angry;  // se o player entrar no seu compo de visão ele ira atacar
+    int id;
 } Monster;
 
 // inicializa player
 Player initPlayer (Player player);
 
 // init Monster
-Monster initMonster (Monster monster, int x, int y, int rank, int type);
+Monster initMonster (Monster monster, int x, int y, int rank, int type, int id);
 
 // tipos de monstros
 enum monstertype {

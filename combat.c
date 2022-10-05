@@ -2,7 +2,8 @@
 #include "combat.h"
 #include <time.h>
 
-// entrou no campo de visão do monstro
+// recebe ponteiro de um monstro e avalia se ele esta no alcance de combate do player
+// se sim o monstro fica bravo e começa a atacar o player; retorna o monstro
 bool monsterAngry (Monster  * monster, Player player) {
     if ((( (player.x - monster->x) < 64 ) && ( (player.x - monster->x) > -64 )) && (((player.y - monster->y) < 64) && ((player.y - monster->y) > -64))) {
         monster->angry = true;
@@ -12,21 +13,23 @@ bool monsterAngry (Monster  * monster, Player player) {
 }
 
 // monstro segue o player se as cordenadas forem iguais o player leva dano
-Monster monsterFollow (Monster monster, Player player) {
-    if (monster.x > player.x) {
-        monster.x--;
+void monsterFollow (Monster * monster, Player * player) {
+    if (monster->x == player->x && monster->y == player->y) {
+        player->health -= monster->damage;
     }
-    else if (monster.x < player.x) {
-        monster.x++;
+    else if (monster->x > player->x) {
+        monster->x--;
+    }
+    else if (monster->x < player->x) {
+        monster->x++;
     }
     
-    if (monster.y > player.y) {
-        monster.y--;
+    if (monster->y > player->y) {
+        monster->y--;
     }
-    else if (monster.y < player.y) {
-        monster.y++;
+    else if (monster->y < player->y) {
+        monster->y++;
     }
-    return monster;
 }
 
 // dano levado ao encostar em monstros
@@ -38,8 +41,8 @@ Player damageTaken (Monster monster, Player player) {
 }
 
 // matou um monstro
-Player killMonster (Monster monster, Player player) {
-    switch (monster.rank) {
+Player killMonster (Monster * monster, Player player) {
+    switch (monster->rank) {
         case 1:
             player.xp += 70;
             break;
@@ -109,12 +112,9 @@ Player killMonster (Monster monster, Player player) {
 }
 
 // lança magia
-Monster castSpell (Monster monster, Player player) {
+void castSpell (Monster * monster, Player player) {
     srand(time(NULL));
     int damage = rand() % player.damage + 1;
     
-    monster.health -= damage;
-
-    return monster;
-    
+    monster->health -= damage;
 }
