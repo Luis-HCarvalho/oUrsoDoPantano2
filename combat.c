@@ -2,6 +2,15 @@
 #include "combat.h"
 #include <time.h>
 
+// entrou no campo de visão do monstro
+bool monsterAngry (Monster  * monster, Player player) {
+    if ((( (player.x - monster->x) < 64 ) && ( (player.x - monster->x) > -64 )) && (((player.y - monster->y) < 64) && ((player.y - monster->y) > -64))) {
+        monster->angry = true;
+        return true;
+    }
+    return false;
+}
+
 // monstro segue o player se as cordenadas forem iguais o player leva dano
 Monster monsterFollow (Monster monster, Player player) {
     if (monster.x > player.x) {

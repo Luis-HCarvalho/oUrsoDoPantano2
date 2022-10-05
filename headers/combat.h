@@ -1,6 +1,9 @@
 #ifndef COMBAT_H
 #define COMBAT_H
 
+// entrou no campo de visão do monstro
+bool monsterAngry (Monster * monster, Player player);
+
 // monstro segue o player se as cordenadas forem iguais o player leva dano
 Monster monsterFollow (Monster monster, Player player);
 

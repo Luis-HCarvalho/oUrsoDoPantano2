@@ -11,6 +11,10 @@
 // fazer uma func para draw monster
 // fazer uma func para draw maps
 
+// ataque com evento on keyup
+// implementar mana 
+// velocidade limitar ataque de monstros
+
 int gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
@@ -27,6 +31,15 @@ int gameMainLoop (
     ALLEGRO_BITMAP * playerImg2,
     ALLEGRO_BITMAP * playerImg3,
     ALLEGRO_BITMAP * playerImg4
+);
+
+void monsterAnimation (
+    Monster monster, 
+    int animationNum,
+    ALLEGRO_BITMAP * monsterImg1,
+    ALLEGRO_BITMAP * monsterImg2,
+    ALLEGRO_BITMAP * monsterImg3,
+    ALLEGRO_BITMAP * monsterImg4
 );
 
 int main () {
@@ -156,7 +169,6 @@ int gameMainLoop (
 ) {
 
     ALLEGRO_EVENT event;
-    //al_start_timer(timer);
 
     // player
     Player player;
@@ -164,13 +176,17 @@ int gameMainLoop (
 
     // troll
     Monster troll;
-    troll = initMonster(troll, 100, 100, 5);
+    troll = initMonster(troll, 100, 100, 5, Troll);
 
     // variáveis para o loop principal
     bool done = false;
     bool redraw = true;
-    bool combat = false;
+    bool combatRange = false;
     bool attack = false;
+    bool spell = false;
+
+    // animação do player e monstros
+    int animationTimer = 0;
 
     // monstros >> colocar uma funcçao de criação de monstro 
 
@@ -184,20 +200,11 @@ int gameMainLoop (
         switch(event.type) {
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
-                if (troll.health <= 0) {
-                    player = killMonster(troll, player);
-                }
-                if (attack) {
+                if (troll.angry && troll.health > 0) {
                     troll = monsterFollow(troll, player);
                 }
 
-                if ((( (player.x - troll.x) < 64 ) && ( (player.x - troll.x) > -64 )) && (((player.y - troll.y) < 64) && ((player.y - troll.y) > -64))) {
-                    combat = true; // combate habilitado
-                    attack = true;
-                }
-                else {
-                    combat = false;
-                }
+                combatRange = monsterAngry(&troll, player);
 
                 redraw = true;
                 break;
@@ -242,14 +249,23 @@ int gameMainLoop (
                         player.x += player.speed;
                         player.direc = 0;
                         break;
-                    case ALLEGRO_KEY_X: // nao esta funcionando
-                        if (combat) {
-                            troll = castSpell(troll, player);
-
-                        }
-                        break;
                     case ALLEGRO_KEY_ESCAPE:
                         done = true;
+                        break;
+                }
+                break;
+
+            // magias (ataques do player)
+            case ALLEGRO_EVENT_KEY_UP:
+                switch (event.keyboard.keycode) {
+                    case ALLEGRO_KEY_X:
+                        if (combatRange) {
+                            spell = true;
+                            troll = castSpell(troll, player);
+                            if (troll.health <= 0) {
+                                player = killMonster(troll, player);
+                            }
+                        }
                         break;
                 }
                 break;
@@ -275,35 +291,43 @@ int gameMainLoop (
                     }
                 }
             }
-            // desenha a sprite do player
-            if (player.playerAnim < 10) {
+
+            if (spell) {
+                al_draw_line(player.x + 16, player.y + 16, troll.x + 16, troll.y + 16, al_map_rgb_f(255, 255, 255), 2);
+                spell = false;
+            }
+
+            // desenha a sprite (animação) player e monstros
+            if (animationTimer < 10) {
                 al_draw_bitmap(playerImg1, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg1, troll.x, troll.y, 0); //troll
-                player.playerAnim++;
+                
+                monsterAnimation(troll, 1, trollImg1, trollImg2, trollImg3, trollImg4);
+                animationTimer++;
             }
-            else if (player.playerAnim < 20) {
+            else if (animationTimer < 20) {
                 al_draw_bitmap(playerImg2, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg2, troll.x, troll.y, 0);  //troll
-                player.playerAnim++;
+                monsterAnimation(troll, 2, trollImg1, trollImg2, trollImg3, trollImg4);
+                animationTimer++;
             }
-            else if (player.playerAnim < 30) {
+            else if (animationTimer < 30) {
                 al_draw_bitmap(playerImg3, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg3, troll.x, troll.y, 0);  //troll
-                player.playerAnim++;
+                monsterAnimation(troll, 3, trollImg1, trollImg2, trollImg3, trollImg4);
+                animationTimer++;
             }
             else {
                 al_draw_bitmap(playerImg4, player.x, player.y, player.direc);
-                al_draw_bitmap(trollImg4, troll.x, troll.y, 0);  //troll
-                player.playerAnim = 0;
-                
+                monsterAnimation(troll, 4, trollImg1, trollImg2, trollImg3, trollImg4);
+                animationTimer = 0;   
             }
-            if (combat) {
+
+            if (combatRange) {
                 al_draw_textf(font, al_map_rgb(255, 255, 255), 1000, 600, 0, "APERTE X PARA ATACAR");
             }
 
-            if (attack) {
+            if (troll.angry) {
                 if (troll.health < 0) {
                     //done = true;
+
                     troll.health = 50;
                 }
                 else {
@@ -330,6 +354,34 @@ int gameMainLoop (
             al_flip_display();
 
             redraw = false;
+        }
+    }
+}
+
+// recebe um monstro (futuramente mais) e o num da sprite para ser desenhada na tela
+void monsterAnimation (
+    Monster monster,
+    int animationNum,
+    ALLEGRO_BITMAP * monsterImg1,
+    ALLEGRO_BITMAP * monsterImg2,
+    ALLEGRO_BITMAP * monsterImg3,
+    ALLEGRO_BITMAP * monsterImg4
+) {
+
+    if (monster.health > 0) {
+        switch (animationNum) {
+            case 1:
+                al_draw_bitmap(monsterImg1, monster.x, monster.y, 0);
+                break;
+            case 2:
+                al_draw_bitmap(monsterImg2, monster.x, monster.y, 0);
+                break;
+            case 3:
+                al_draw_bitmap(monsterImg3, monster.x, monster.y, 0);
+                break;
+            case 4:
+                al_draw_bitmap(monsterImg4, monster.x, monster.y, 0);
+                break;
         }
     }
 }

@@ -19,11 +19,11 @@ typedef struct {
     int y;  // cordenada y
     int speed; // velocidade de movimentação
     int direc; // direção da movimentação
-    int playerAnim; // contador para estipular a velocidade da animação (transição entre sprites)
     int health;
     int level;
     int xp;
     int damage;
+    int mana;
 } Player;
 
 // struct monstro
@@ -34,12 +34,20 @@ typedef struct {
     int health;
     int damage;
     int rank;
+    int type;
+    bool angry;  // se o player entrar no seu compo de visão ele ira atacar
 } Monster;
 
 // inicializa player
 Player initPlayer (Player player);
 
 // init Monster
-Monster initMonster (Monster monster, int x, int y, int rank);
+Monster initMonster (Monster monster, int x, int y, int rank, int type);
+
+// tipos de monstros
+enum monstertype {
+    Slime = 0,
+    Troll
+};
 
 #endif // INIT_H
