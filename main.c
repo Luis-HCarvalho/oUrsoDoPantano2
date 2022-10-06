@@ -310,21 +310,21 @@ void gameMainLoop (
                 animationTimer = 0;   
             }
 
+            // algum monstro esta dentro do combatRange
             if (combatRange) {
+                // mensagem que o ataque do player esta habilitado
                 al_draw_textf(font, al_map_rgb(255, 255, 255), 1000, 600, 0, "APERTE X PARA ATACAR");
-            }
-
-            if (monsterInRange.angry) {
-                al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", monsterInRange.health);
-                al_draw_filled_rectangle(1100, 20, monsterInRange.health + 1100, 30, al_map_rgba_f(255, 0, 255, 0.5));
+                
+                // barra de vida de monstros
+                if (monsterInRange.angry) {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", monsterInRange.health);
+                    al_draw_filled_rectangle(1100, 20, monsterInRange.health + 1100, 30, al_map_rgba_f(255, 0, 255, 0.5));
+                }
             }
 
             // hud player
             al_draw_textf(font, al_map_rgb(255, 255, 255), 5, 5, 0, "LEVEL %d", player.level);
             al_draw_textf(font, al_map_rgb(255, 255, 255), 80, 5, 0, "XP %d", player.xp);
-            
-            // se for pego pelo monstro leva dano
-            //player = damageTaken (troll, player);
 
             // barra de vida
             if (player.health < 0) {
