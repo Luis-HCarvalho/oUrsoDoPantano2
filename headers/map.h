@@ -13,6 +13,6 @@ typedef struct{
 } Mapsize;
 
 // recebe o path para o txt do mapa e uma matrix para armazenar map[maxMapHeight][maxMapWidth]
-Mapsize getMap (char mapName[], char map[][maxMapWidth], Mapsize mapsize);
+void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize);
 
 #endif // MAP_H

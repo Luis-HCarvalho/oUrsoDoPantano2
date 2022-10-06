@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 
 // tamanho do display
 #define displayWidth 1280 // 40x32 tiles
@@ -19,11 +23,11 @@ typedef struct {
     int y;  // cordenada y
     int speed; // velocidade de movimentação
     int direc; // direção da movimentação
-    int playerAnim; // contador para estipular a velocidade da animação (transição entre sprites)
     int health;
     int level;
     int xp;
     int damage;
+    int mana;
 } Player;
 
 // struct monstro
@@ -34,12 +38,37 @@ typedef struct {
     int health;
     int damage;
     int rank;
+    int type;  // talvez não precise
+    bool angry;  // se o player entrar no seu compo de visão ele ira atacar
+    int id;
+    int attackCooldown;
 } Monster;
 
 // inicializa player
-Player initPlayer (Player player);
+void initPlayer (Player * player);
 
 // init Monster
-Monster initMonster (Monster monster, int x, int y, int rank);
+void initMonster (Monster * monster, int x, int y, int rank, int type, int id);
+
+// tipos de monstros
+enum monstertype {
+    Slime = 0,
+    Troll
+};
+
+
+typedef struct {
+    ALLEGRO_BITMAP * img1;
+    ALLEGRO_BITMAP * img2;
+    ALLEGRO_BITMAP * img3;
+    ALLEGRO_BITMAP * img4;
+} Sprites;
+
+typedef struct {
+    ALLEGRO_BITMAP * wall;
+    ALLEGRO_BITMAP * floor;
+    ALLEGRO_BITMAP * floor2;
+    ALLEGRO_BITMAP * trap;
+} Tiles;
 
 #endif // INIT_H

@@ -9,46 +9,46 @@ void must_init (bool testInit, const char * description) {
 }
 
 // inicializa player
-Player initPlayer (Player player) {
-    player.x = displayWidth / 2;   // cordenadas iniciais do player
-    player.y = displayHeight / 2;  // cordenadas iniciais do player
-    player.speed = 2;
-    player.direc = 0;
-    player.playerAnim = 0;
-    player.health = 100;
-    player.level = 1;
-    player.xp = 0;
-    player.damage = 10;
-
-    return player;
+void initPlayer (Player * player) {
+    player->x = displayWidth / 2;   // cordenadas iniciais do player
+    player->y = displayHeight / 2;  // cordenadas iniciais do player
+    player->speed = 2;
+    player->direc = 0;
+    player->health = 100;
+    player->level = 1;
+    player->xp = 0;
+    player->damage = 10;
+    player->mana = 50;
 }
 
-Monster initMonster (Monster monster, int x, int y, int rank) {
-    monster.x = x;  // cordenada x
-    monster.y = y;  // cordenada y
-    monster.direc = 0;// direção da movimentação
-    monster.rank = rank;
-    switch (monster.rank) {
+void initMonster (Monster * monster, int x, int y, int rank, int type, int id) {
+    monster->x = x;  // cordenada x
+    monster->y = y;  // cordenada y
+    monster->direc = 0;// direção da movimentação
+    monster->rank = rank;
+    monster->type = type;
+    monster->angry = false;
+    monster->id = id;
+    switch (monster->rank) {
         case 1:     // golem
-            monster.health = 200;
-            monster.damage = 40;
+            monster->health = 200;
+            monster->damage = 40;
             break;
         case 2:
-            monster.health = 150;
-            monster.damage = 20;
+            monster->health = 150;
+            monster->damage = 20;
             break;
         case 3:
-            monster.health = 100;
-            monster.damage = 20;
+            monster->health = 100;
+            monster->damage = 20;
             break;
         case 4:
-            monster.health = 80;
-            monster.damage = 10;
+            monster->health = 80;
+            monster->damage = 10;
             break;
         case 5:
-            monster.health = 50;
-            monster.damage = 5;
+            monster->health = 50;
+            monster->damage = 5;
             break;
     }
-    return monster;
 }
