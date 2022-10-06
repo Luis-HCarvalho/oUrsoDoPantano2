@@ -1,19 +1,9 @@
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-
 #include "init.h"
 #include "combat.h"
 #include "map.h"
 
-// fazer uma func para draw player 
-// fazer uma func para draw monster
-// fazer uma func para draw maps
-
-// ataque com evento on keyup
 // implementar mana 
-// velocidade limitar ataque de monstros
+// velocidade/ limitar ataque de monstros
 
 int gameMainLoop (
     ALLEGRO_TIMER * timer,
@@ -23,23 +13,14 @@ int gameMainLoop (
     Mapsize mapsize,
     ALLEGRO_BITMAP * tileWall,
     ALLEGRO_BITMAP * tileFloor,
-    ALLEGRO_BITMAP * trollImg1,
-    ALLEGRO_BITMAP * trollImg2,
-    ALLEGRO_BITMAP * trollImg3,
-    ALLEGRO_BITMAP * trollImg4,
-    ALLEGRO_BITMAP * playerImg1,
-    ALLEGRO_BITMAP * playerImg2,
-    ALLEGRO_BITMAP * playerImg3,
-    ALLEGRO_BITMAP * playerImg4
+    Sprites * playerImg,
+    Sprites * trollImg
 );
 
 void monsterAnimation (
     Monster monster, 
     int animationNum,
-    ALLEGRO_BITMAP * monsterImg1,
-    ALLEGRO_BITMAP * monsterImg2,
-    ALLEGRO_BITMAP * monsterImg3,
-    ALLEGRO_BITMAP * monsterImg4
+    Sprites * monsterImg
 );
 
 int main () {
@@ -63,32 +44,28 @@ int main () {
     must_init(font, "font");
 
     // carrega os sprites de movimentação do player
-    // matrix criada para possibilitar a mudança dos sprites (test)
-    char * playerImgPath[4][50];
-    playerImgPath[0][0] = "./assets/characters/Wizard/wizard_idle_walk_1.png";
-    playerImgPath[1][0] = "./assets/characters/Wizard/wizard_idle_walk_2.png";
-    playerImgPath[2][0] = "./assets/characters/Wizard/wizard_idle_walk_3.png";
-    playerImgPath[3][0] = "./assets/characters/Wizard/wizard_idle_walk_4.png";
-    ALLEGRO_BITMAP * playerImg1 = al_load_bitmap(playerImgPath[0][0]);
-    ALLEGRO_BITMAP * playerImg2 = al_load_bitmap(playerImgPath[1][0]);
-    ALLEGRO_BITMAP * playerImg3 = al_load_bitmap(playerImgPath[2][0]);
-    ALLEGRO_BITMAP * playerImg4 = al_load_bitmap(playerImgPath[3][0]);
+    Sprites playerImg;
+    playerImg.img1 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_1.png");
+    playerImg.img2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
+    playerImg.img3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
+    playerImg.img4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
 
-    must_init(playerImg1, "playerImg1");
-    must_init(playerImg2, "playerImg2");
-    must_init(playerImg3, "playerImg3");
-    must_init(playerImg4, "playerImg4");
+    must_init(playerImg.img1, "playerImg1");
+    must_init(playerImg.img2, "playerImg2");
+    must_init(playerImg.img3, "playerImg3");
+    must_init(playerImg.img4, "playerImg4");
 
-    // carrega os sprites de movimentação do troll
-    ALLEGRO_BITMAP * trollImg1 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_1.png");
-    ALLEGRO_BITMAP * trollImg2 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_2.png");
-    ALLEGRO_BITMAP * trollImg3 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_3.png");
-    ALLEGRO_BITMAP * trollImg4 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_4.png");
+    // carrega os sprites de movimentação de troll
+    Sprites trollImg;
+    trollImg.img1 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_1.png");
+    trollImg.img2 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_2.png");
+    trollImg.img3 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_3.png");
+    trollImg.img4 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_4.png");
 
-    must_init(trollImg1, "trollImg1");
-    must_init(trollImg2, "trollImg2");
-    must_init(trollImg3, "trollImg3");
-    must_init(trollImg4, "trollImg4");
+    must_init(trollImg.img1, "trollImg1");
+    must_init(trollImg.img2, "trollImg2");
+    must_init(trollImg.img3, "trollImg3");
+    must_init(trollImg.img4, "trollImg4");
 
     // carrega tiles para o mapa
     ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");      // t
@@ -107,9 +84,9 @@ int main () {
     // mapa
     char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
     Mapsize mapsize;    // tamanho do mapa
-    mapsize = getMap("./maps/map1.txt", map, mapsize);  // pega o mapa e retorna o tamanho dele (h/w)
+    getMap("./maps/map1.txt", map, &mapsize);  // pega o mapa e retorna o tamanho dele (h/w)
 
-    // mapa 1
+    // começa o jogo
     al_start_timer(timer);
     gameMainLoop(
             timer,
@@ -119,14 +96,8 @@ int main () {
             mapsize,
             brickWall,  // tileWall
             tile1,  // tileFloor
-            trollImg1,
-            trollImg2,
-            trollImg3,
-            trollImg4,
-            playerImg1,
-            playerImg2,
-            playerImg3,
-            playerImg4
+            &playerImg,
+            &trollImg
     );
 
     // limpeza de recursos criados durante as inicializações
@@ -135,15 +106,15 @@ int main () {
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
 
-    al_destroy_bitmap(playerImg1);
-    al_destroy_bitmap(playerImg2);
-    al_destroy_bitmap(playerImg3);
-    al_destroy_bitmap(playerImg4);
+    al_destroy_bitmap(playerImg.img1);
+    al_destroy_bitmap(playerImg.img2);
+    al_destroy_bitmap(playerImg.img3);
+    al_destroy_bitmap(playerImg.img4);
 
-    al_destroy_bitmap(trollImg1);
-    al_destroy_bitmap(trollImg2);
-    al_destroy_bitmap(trollImg3);
-    al_destroy_bitmap(trollImg4);
+    al_destroy_bitmap(trollImg.img1);
+    al_destroy_bitmap(trollImg.img2);
+    al_destroy_bitmap(trollImg.img3);
+    al_destroy_bitmap(trollImg.img4);
 
     return 0;
 }
@@ -158,16 +129,10 @@ int gameMainLoop (
     Mapsize mapsize,
     ALLEGRO_BITMAP * tileWall,
     ALLEGRO_BITMAP * tileFloor,
-    ALLEGRO_BITMAP * trollImg1,
-    ALLEGRO_BITMAP * trollImg2,
-    ALLEGRO_BITMAP * trollImg3,
-    ALLEGRO_BITMAP * trollImg4,
-    ALLEGRO_BITMAP * playerImg1,
-    ALLEGRO_BITMAP * playerImg2,
-    ALLEGRO_BITMAP * playerImg3,
-    ALLEGRO_BITMAP * playerImg4
+    Sprites * playerImg,
+    Sprites * trollImg
 ) {
-
+    
     ALLEGRO_EVENT event;
 
     // player
@@ -215,10 +180,10 @@ int gameMainLoop (
                 if (combatRange) {
                     monsterInRange = troll;
                 }
-                combatRange = monsterAngry(&troll2, player);
-                if (combatRange) {
-                    monsterInRange = troll2;
-                }
+                // combatRange = monsterAngry(&troll2, player);
+                // if (combatRange) {
+                //     monsterInRange = troll2;
+                // }
 
                 redraw = true;
                 break;
@@ -320,35 +285,36 @@ int gameMainLoop (
                 spell = false;
             }
 
-            // desenha a sprite (animação) player e monstros
+            // desenha a sprite player e monstros
             if (animationTimer < 10) {
-                al_draw_bitmap(playerImg1, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->img1, player.x, player.y, player.direc);
                 
-                monsterAnimation(troll, 1, trollImg1, trollImg2, trollImg3, trollImg4);
-                monsterAnimation(troll2, 1, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll, 1, trollImg);
+                monsterAnimation(troll2, 1, trollImg);
+
                 animationTimer++;
             }
             else if (animationTimer < 20) {
-                al_draw_bitmap(playerImg2, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->img2, player.x, player.y, player.direc);
 
-                monsterAnimation(troll, 2, trollImg1, trollImg2, trollImg3, trollImg4);
-                monsterAnimation(troll2, 2, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll, 2, trollImg);
+                monsterAnimation(troll2, 2, trollImg);
 
                 animationTimer++;
             }
             else if (animationTimer < 30) {
-                al_draw_bitmap(playerImg3, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->img3, player.x, player.y, player.direc);
 
-                monsterAnimation(troll, 3, trollImg1, trollImg2, trollImg3, trollImg4);
-                monsterAnimation(troll2, 3, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll, 3, trollImg);
+                monsterAnimation(troll2, 3, trollImg);
 
                 animationTimer++;
             }
             else {
-                al_draw_bitmap(playerImg4, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->img4, player.x, player.y, player.direc);
 
-                monsterAnimation(troll, 4, trollImg1, trollImg2, trollImg3, trollImg4);
-                monsterAnimation(troll2, 4, trollImg1, trollImg2, trollImg3, trollImg4);
+                monsterAnimation(troll, 4, trollImg);
+                monsterAnimation(troll2, 4, trollImg);
 
                 animationTimer = 0;   
             }
@@ -392,29 +358,26 @@ int gameMainLoop (
     }
 }
 
-// recebe um monstro (futuramente mais) e o num da sprite para ser desenhada na tela
+// recebe um monstro e o num da sprite para ser desenhada na tela
 void monsterAnimation (
     Monster monster,
     int animationNum,
-    ALLEGRO_BITMAP * monsterImg1,
-    ALLEGRO_BITMAP * monsterImg2,
-    ALLEGRO_BITMAP * monsterImg3,
-    ALLEGRO_BITMAP * monsterImg4
+    Sprites * monsterImg
 ) {
 
     if (monster.health > 0) {
         switch (animationNum) {
             case 1:
-                al_draw_bitmap(monsterImg1, monster.x, monster.y, 0);
+                al_draw_bitmap(monsterImg->img1, monster.x, monster.y, 0);
                 break;
             case 2:
-                al_draw_bitmap(monsterImg2, monster.x, monster.y, 0);
+                al_draw_bitmap(monsterImg->img2, monster.x, monster.y, 0);
                 break;
             case 3:
-                al_draw_bitmap(monsterImg3, monster.x, monster.y, 0);
+                al_draw_bitmap(monsterImg->img3, monster.x, monster.y, 0);
                 break;
             case 4:
-                al_draw_bitmap(monsterImg4, monster.x, monster.y, 0);
+                al_draw_bitmap(monsterImg->img4, monster.x, monster.y, 0);
                 break;
         }
     }

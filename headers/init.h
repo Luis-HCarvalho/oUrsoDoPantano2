@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 
 // tamanho do display
 #define displayWidth 1280 // 40x32 tiles
@@ -50,5 +54,20 @@ enum monstertype {
     Slime = 0,
     Troll
 };
+
+
+typedef struct {
+    ALLEGRO_BITMAP * img1;
+    ALLEGRO_BITMAP * img2;
+    ALLEGRO_BITMAP * img3;
+    ALLEGRO_BITMAP * img4;
+} Sprites;
+
+typedef struct {
+    ALLEGRO_BITMAP * wall;
+    ALLEGRO_BITMAP * floor;
+    ALLEGRO_BITMAP * floor2;
+    ALLEGRO_BITMAP * trap;
+} Tiles;
 
 #endif // INIT_H
