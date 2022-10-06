@@ -157,6 +157,12 @@ void gameMainLoop (
     bool combatRange = false;
     bool spell = false;
 
+    // limites do mapa
+    int leftBorder = (displayWidth -  mapsize.width * sizeTile) / 2;
+    int rightBorder = displayWidth - leftBorder - 32;
+    int topBorder = (mapsize.wall * 32 - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
+    int bottomBorder = displayHeight - ((displayHeight -  mapsize.height * sizeTile) / 2) - 36;
+
     while (!done) {
         al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -187,19 +193,26 @@ void gameMainLoop (
                 if (event.keyboard.repeat) {
                     switch (event.keyboard.keycode) {
                         case ALLEGRO_KEY_UP:
-                            if (player.y > 42)
-                                player.y  -= player.speed;
+                            if (player.y > topBorder) {
+                                player.y -= player.speed;
+                            }
                             break;
                         case ALLEGRO_KEY_DOWN:
-                            player.y += player.speed;
+                            if (player.y < bottomBorder) {
+                                player.y += player.speed;
+                            }
                             break;
                         case ALLEGRO_KEY_LEFT:
-                            player.x -= player.speed;
-                            player.direc = 1;
+                            if (player.x > leftBorder) {
+                                player.x -= player.speed;
+                                player.direc = 1;
+                            }
                             break;
                         case ALLEGRO_KEY_RIGHT:
-                            player.x += player.speed;
-                            player.direc = 0;
+                            if (player.x < rightBorder) {
+                                player.x += player.speed;
+                                player.direc = 0;
+                            }
                             break;
                     }
                 }
@@ -207,20 +220,26 @@ void gameMainLoop (
             case ALLEGRO_EVENT_KEY_DOWN:
                 switch (event.keyboard.keycode) {
                     case ALLEGRO_KEY_UP:
-                        if (player.y > 42) {
+                        if (player.y > topBorder) {
                             player.y  -= player.speed;
                         }
                         break;
                     case ALLEGRO_KEY_DOWN:
-                        player.y += player.speed;
+                        if (player.y < bottomBorder) {
+                            player.y += player.speed;
+                        }
                         break;
                     case ALLEGRO_KEY_LEFT:
-                        player.x -= player.speed;
-                        player.direc = 1;
+                        if (player.x > leftBorder) {
+                            player.x -= player.speed;
+                            player.direc = 1;
+                        }
                         break;
                     case ALLEGRO_KEY_RIGHT:
-                        player.x += player.speed;
-                        player.direc = 0;
+                        if (player.x < rightBorder) {
+                            player.x += player.speed;
+                            player.direc = 0;
+                        }
                         break;
                     case ALLEGRO_KEY_ESCAPE:
                         done = true;
@@ -262,11 +281,12 @@ void gameMainLoop (
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapsize.height; i++) {
                 for (int j = 0; j < mapsize.width; j++) {
+                    // desenha os tiles do mapa centralizados
                     if (map[i][j] == 'w') {
-                        al_draw_bitmap(mapTiles->wall, (j * sizeTile),  (i * sizeTile), 0);
+                        al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + (j * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + (i * sizeTile), 0);
                     }
                     else if (map[i][j] == 't') {
-                        al_draw_bitmap(mapTiles->floor, (j * sizeTile),  (i * sizeTile), 0);
+                        al_draw_bitmap(mapTiles->floor, ((displayWidth -  mapsize.width * sizeTile) / 2) + (j * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + (i * sizeTile), 0);
                     }
                 }
             }

@@ -10,16 +10,9 @@ void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize) {
     // abre o arquivo
 	FILE * mapFile;
 	mapFile = fopen(mapName, "r");
-	
-    // dimensoes do mapa
-    int mapHeight;
-	int mapWidth;
 
     // pega a primeira linha do arq que contem as dimensoes
-    fscanf(mapFile, "%d %d", &mapHeight, &mapWidth);
-
-    mapsize->height = mapHeight;
-    mapsize->width = mapWidth;
+    fscanf(mapFile, "%d %d %d", &mapsize->height, &mapsize->width, &mapsize->wall);
 
     char row[255];
 	int cont = -1; //primeira row são as dimensoes do mapa (ignorada pela matrix)

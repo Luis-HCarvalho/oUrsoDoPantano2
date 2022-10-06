@@ -10,6 +10,7 @@
 typedef struct{
     int width;
     int height;
+    int wall;
 } Mapsize;
 
 // recebe o path para o txt do mapa e uma matrix para armazenar map[maxMapHeight][maxMapWidth]
