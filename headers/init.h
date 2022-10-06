@@ -44,10 +44,10 @@ typedef struct {
 } Monster;
 
 // inicializa player
-Player initPlayer (Player player);
+void initPlayer (Player * player);
 
 // init Monster
-Monster initMonster (Monster monster, int x, int y, int rank, int type, int id);
+void initMonster (Monster * monster, int x, int y, int rank, int type, int id);
 
 // tipos de monstros
 enum monstertype {
