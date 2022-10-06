@@ -38,9 +38,10 @@ typedef struct {
     int health;
     int damage;
     int rank;
-    int type;
+    int type;  // talvez não precise
     bool angry;  // se o player entrar no seu compo de visão ele ira atacar
     int id;
+    int attackCooldown;
 } Monster;
 
 // inicializa player

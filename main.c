@@ -5,7 +5,8 @@
 // implementar mana 
 // velocidade/ limitar ataque de monstros
 
-int gameMainLoop (
+// loop principal
+void gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
@@ -16,6 +17,7 @@ int gameMainLoop (
     Sprites * trollImg
 );
 
+// desenha o sprite do monstro na tela, recebe o monstro os srpites e o num da sprite para desenhar
 void monsterAnimation (
     Monster monster, 
     int animationNum,
@@ -76,15 +78,15 @@ int main () {
     must_init(map1Tiles.floor, "tile1");
     must_init(map1Tiles.floor2, "tile2");
 
+    // mapa
+    char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
+    Mapsize mapsize;
+    getMap("./maps/map1.txt", map, &mapsize);  // retorna a posição dos tiles e o tamanho do mapa
+
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
-
-    // mapa
-    char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
-    Mapsize mapsize;    // tamanho do mapa
-    getMap("./maps/map1.txt", map, &mapsize);  // pega o mapa e retorna o tamanho dele (h/w)
 
     // começa o jogo
     al_start_timer(timer);
@@ -100,10 +102,10 @@ int main () {
     );
 
     // limpeza de recursos criados durante as inicializações
-    al_destroy_font(font);
-    al_destroy_display(display);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
+    al_destroy_display(display);
+    al_destroy_font(font);
 
     al_destroy_bitmap(playerImg.img1);
     al_destroy_bitmap(playerImg.img2);
@@ -119,8 +121,7 @@ int main () {
 }
 
 // loop principal de execução do programa
-// return flag para mudar o mapa e monstros
-int gameMainLoop (
+void gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
@@ -132,56 +133,51 @@ int gameMainLoop (
 ) {
     
     ALLEGRO_EVENT event;
+    
+    // animação do player e monstros
+    int animationTimer = 0;
 
     // player
     Player player;
-    player = initPlayer(player);
+    initPlayer(&player);
 
     // trolls
     Monster troll;
-    troll = initMonster(troll, 100, 100, 5, Troll, 0);
+    initMonster(&troll, 100, 100, 5, Troll, 0);
 
     Monster troll2;
-    troll2 = initMonster(troll2, 300, 300, 5, Troll, 1);
+    initMonster(&troll2, 300, 300, 5, Troll, 1);
+
+    // o monstro esta no range de combate do player
+    Monster monsterInRange;
 
     // variáveis para o loop principal
     bool done = false;
     bool redraw = true;
     bool combatRange = false;
-    Monster monsterInRange;  // qual monstro esta no range de combate do player
     bool spell = false;
 
-    // animação do player e monstros
-    int animationTimer = 0;
-
-    // monstros >> colocar uma funcçao de criação de monstro 
-
     while (!done) {
-
-        // limpa a tela
         al_clear_to_color(al_map_rgb(0, 0, 0));
 
-        al_wait_for_event(queue, &event); // aguarda evento acontecer para que o programa continuar
+        al_wait_for_event(queue, &event);
 
         switch(event.type) {
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
-                if (troll.angry && troll.health > 0) {
-                    monsterFollow(&troll, &player);
-                }
-
-                if (troll2.angry && troll2.health > 0) {
-                    monsterFollow(&troll2, &player);
-                }
-
-                combatRange = monsterAngry(&troll, player);
-                if (combatRange) {
+                if (combatRange = monsterAngry(&troll, player)) {
                     monsterInRange = troll;
                 }
-                // combatRange = monsterAngry(&troll2, player);
-                // if (combatRange) {
-                //     monsterInRange = troll2;
-                // }
+                else if (combatRange = monsterAngry(&troll2, player)) {
+                    monsterInRange = troll2;
+                }
+                else {
+                    // quando um monstro morre e não há outro no range essa instrução garante que a barra de vida de monstros desapareça
+                    monsterInRange.angry = false;
+                }
+
+                monsterFollow(&troll, &player);
+                monsterFollow(&troll2, &player);
 
                 redraw = true;
                 break;
@@ -239,17 +235,14 @@ int gameMainLoop (
                         if (combatRange) {
                             spell = true;
                             switch (monsterInRange.id) {
+                                // determina em qual monstro vai o ataque
                                 case 0:
-                                    castSpell(&troll, player);
+                                    castSpell(&troll, &player);
                                     break;
                                 case 1:
-                                    castSpell(&troll2, player);
+                                    castSpell(&troll2, &player);
                                     break;
 
-                            }
-                            //castSpell(&monsterInRange, player);
-                            if (monsterInRange.health <= 0) {
-                                player = killMonster(&monsterInRange, player);
                             }
                         }
                         break;
@@ -322,16 +315,8 @@ int gameMainLoop (
             }
 
             if (monsterInRange.angry) {
-                if (monsterInRange.health < 0) {
-                    //done = true;
-
-                    //implementar loop para checar monstros mortos e imple=mentar mecanica de morte
-                    monsterInRange.health = 50;
-                }
-                else {
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", monsterInRange.health);
-                    al_draw_filled_rectangle(1100, 20, monsterInRange.health + 1100, 30, al_map_rgba_f(255, 0, 255, 0.5));
-                }
+                al_draw_textf(font, al_map_rgb(255, 255, 255), 1100, 5, 0, "VIDA %d", monsterInRange.health);
+                al_draw_filled_rectangle(1100, 20, monsterInRange.health + 1100, 30, al_map_rgba_f(255, 0, 255, 0.5));
             }
 
             // hud player
