@@ -11,8 +11,7 @@ int gameMainLoop (
     ALLEGRO_FONT * font,
     char map[][maxMapWidth],
     Mapsize mapsize,
-    ALLEGRO_BITMAP * tileWall,
-    ALLEGRO_BITMAP * tileFloor,
+    Tiles * mapTiles,
     Sprites * playerImg,
     Sprites * trollImg
 );
@@ -68,13 +67,14 @@ int main () {
     must_init(trollImg.img4, "trollImg4");
 
     // carrega tiles para o mapa
-    ALLEGRO_BITMAP * tile1 = al_load_bitmap("./assets/tiles/tileTest.png");      // t
-    ALLEGRO_BITMAP * tile2 = al_load_bitmap("./assets/tiles/tileTest2.png");     // b
-    ALLEGRO_BITMAP * brickWall = al_load_bitmap("./assets/tiles/brickWall.png"); // w
+    Tiles map1Tiles;
+    map1Tiles.wall = al_load_bitmap("./assets/tiles/brickWall.png");
+    map1Tiles.floor = al_load_bitmap("./assets/tiles/tileTest.png");
+    map1Tiles.floor2 = al_load_bitmap("./assets/tiles/tileTest2.png");
 
-    must_init(tile1, "tile1");
-    must_init(tile2, "tile2");
-    must_init(brickWall, "brickWall");
+    must_init(map1Tiles.wall, "brickWall");
+    must_init(map1Tiles.floor, "tile1");
+    must_init(map1Tiles.floor2, "tile2");
 
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -94,8 +94,7 @@ int main () {
             font,
             map,
             mapsize,
-            brickWall,  // tileWall
-            tile1,  // tileFloor
+            &map1Tiles,
             &playerImg,
             &trollImg
     );
@@ -127,8 +126,7 @@ int gameMainLoop (
     ALLEGRO_FONT * font,
     char map[][maxMapWidth],
     Mapsize mapsize,
-    ALLEGRO_BITMAP * tileWall,
-    ALLEGRO_BITMAP * tileFloor,
+    Tiles * mapTiles,
     Sprites * playerImg,
     Sprites * trollImg
 ) {
@@ -272,10 +270,10 @@ int gameMainLoop (
             for (int i = 0; i < mapsize.height; i++) {
                 for (int j = 0; j < mapsize.width; j++) {
                     if (map[i][j] == 'w') {
-                        al_draw_bitmap(tileWall, (j * sizeTile),  (i * sizeTile), 0);
+                        al_draw_bitmap(mapTiles->wall, (j * sizeTile),  (i * sizeTile), 0);
                     }
                     else if (map[i][j] == 't') {
-                        al_draw_bitmap(tileFloor, (j * sizeTile),  (i * sizeTile), 0);
+                        al_draw_bitmap(mapTiles->floor, (j * sizeTile),  (i * sizeTile), 0);
                     }
                 }
             }
