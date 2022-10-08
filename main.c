@@ -26,17 +26,6 @@ void monsterAnimation (
     Sprites * monsterImg
 );
 
-// void loadMap (int mapNav, char * map[][maxMapWidth],Mapsize mapsize) {
-//     switch (mapNav) {
-//         case 1:
-//             getMap("./maps/map2.txt", map, &mapsize); 
-//             break;
-//         case 2:
-//             getMap("./maps/map2 .txt", map, &mapsize); 
-//             break;
-//     }
-// }
-
 int main () {
 
     // inicializações 
