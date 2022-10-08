@@ -1,5 +1,10 @@
-#include <string.h>
+/* legenda do mapa: 
+    primeira linha -> valores de altura, largura e altura da parede nessa ordem
+    w -> parede
+    f -> chão
+*/
 
+#include <string.h>
 #include "init.h"
 #include "map.h"
 
