@@ -7,7 +7,7 @@
 #define sizeTile 32 // tamanho em px dos tiles
 
 // dimensoes do mapa
-typedef struct{
+typedef struct {
     int width;
     int height;
     int wall;
