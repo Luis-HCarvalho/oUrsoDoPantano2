@@ -1,6 +1,5 @@
 #include "init.h"
 #include "combat.h"
-#include <time.h>
 
 // recebe ponteiro de um monstro e avalia se ele esta no alcance de combate do player
 // se sim o monstro fica bravo e começa a atacar o player; retorna o monstro
@@ -13,16 +12,19 @@ bool monsterAngry (Monster  * monster, Player player) {
 }
 
 // monstro segue o player se as cordenadas forem iguais o player leva dano
-void monsterFollow (Monster * monster, Player * player) {
+void monsterFollow (Monster * monster, Player * player, int attackCooldown) {
     if (monster->angry && monster->health > 0) {
         if (monster->x == player->x && monster->y == player->y) {
-            player->health -= monster->damage;
+            if (attackCooldown > 10 && attackCooldown % 10 == 0)
+                player->health -= monster->damage;
         }
         else if (monster->x > player->x) {
             monster->x--;
+            monster->direc = 1;
         }
         else if (monster->x < player->x) {
             monster->x++;
+            monster->direc = 0;
         }
         
         if (monster->y > player->y) {
@@ -35,14 +37,41 @@ void monsterFollow (Monster * monster, Player * player) {
 }
 
 // lança magia
-void castSpell (Monster * monster, Player * player) {
-    srand(time(NULL));
-    int damage = rand() % player->damage + 1;
-    
-    monster->health -= damage;
+void castSpell (Monster * monster, Player * player, int spell) {
+    if (player->mana > 0) {
+        srand(time(NULL));
+        int damage = rand() % player->damage + 1;
+        
+        switch (spell) {
+            case magicMissile:
+                if (player->mana > 5) {
+                    player->mana -= 5;
+                monster->health -= damage;
+                }
+                break;
+            case fireBall:
+                if (player->mana > 10) {
+                    player->mana -= 10;
+                monster->health -= damage;
+                }
+                break;
+            case lightning:
+                if (player->mana > 15) {
+                    player->mana -= 15;
+                monster->health -= damage;
+                }
+                break;
+            case iceSpear:
+                if (player->mana > 20) {
+                    player->mana -= 20;
+                monster->health -= damage;
+                }
+                break;
+        } 
 
-    if (monster->health <= 0) {
-        killMonster(monster, player);
+        if (monster->health <= 0) {
+            killMonster(monster, player);
+        }
     }
 }
 
