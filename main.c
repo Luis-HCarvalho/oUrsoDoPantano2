@@ -2,9 +2,9 @@
 #include "combat.h"
 #include "map.h"
 
-// implementar mana 
-// velocidade/ limitar ataque de monstros (cooldown)
-// implementar a possibilidade de gerar monstros diferentes
+// (todo) implementar a possibilidade de gerar monstros diferentes
+//spawn de monstros
+// mudança de mapa (transição)
 
 // loop principal
 void gameMainLoop (
@@ -80,18 +80,19 @@ int main () {
     must_init(map1Tiles.floor, "tile1");
     must_init(map1Tiles.floor2, "tile2");
 
-    // mapa
-    char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
-    Mapsize mapsize;
-    getMap("./maps/map1.txt", map, &mapsize);  // retorna a posição dos tiles e o tamanho do mapa
-
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
+    // mapa
+    char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
+    Mapsize mapsize;
+    getMap("./maps/map1.txt", map, &mapsize);  // retorna a posição dos tiles e o tamanho do mapa
+
     // começa o jogo
     al_start_timer(timer);
+
     gameMainLoop(
             timer,
             queue,
@@ -100,6 +101,21 @@ int main () {
             mapsize,
             &map1Tiles,
             5,
+            &playerImg,
+            &trollImg
+    );
+
+    // load do segundo mapa
+    getMap("./maps/map2.txt", map, &mapsize);
+
+    gameMainLoop(
+            timer,
+            queue,
+            font,
+            map,
+            mapsize,
+            &map1Tiles,
+            2,
             &playerImg,
             &trollImg
     );
@@ -138,19 +154,19 @@ void gameMainLoop (
     
     ALLEGRO_EVENT event;
 
-    // player
-    Player player;
-    initPlayer(&player);
-
-    // o monstro esta no range de combate do player
-    Monster monsterInRange;
-
     // limites do mapa
     Maplimits maplim;
     maplim.leftBorder = (displayWidth -  mapsize.width * sizeTile) / 2;
     maplim.rightBorder = displayWidth - maplim.leftBorder - 32;
     maplim.topBorder = (mapsize.wall * 32 - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
     maplim.bottomBorder = displayHeight - ((displayHeight -  mapsize.height * sizeTile) / 2) - 36;
+
+    // player
+    Player player;
+    initPlayer(&player);
+
+    // o monstro que esta no range de combate do player
+    Monster monsterInRange;
 
     // init monstros
     Monster monsters[maxNumMonsters];
@@ -165,35 +181,54 @@ void gameMainLoop (
     bool spell = false;
     int animationTimer = 0;    // animação do player e monstros
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
+    int respawnTimer = 0;
 
     while (!done) {
         al_clear_to_color(al_map_rgb(0, 0, 0));
-
         al_wait_for_event(queue, &event);
 
         switch(event.type) {
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
+                // cooldown ataques dos monstros e recuperação de mana
                 if (attackCooldown <= 20){
                     attackCooldown++;
                 }
                 else {
                     attackCooldown = 0;
                 }
-                if (player.mana < 50 && attackCooldown >= 10 && attackCooldown % 10 == 0)
+
+                // recuparação de mana
+                if (player.mana < 50 && attackCooldown >= 10 && attackCooldown % 10 == 0) {
                     player.mana++;
+                }
+                
+                // determina se um monstro esta dentro do range de combate do player
                 for (int i = 0; i < numMonsters; i++) {
                     if ((combatRange = monsterAngry(&monsters[i], player))) {
                         monsterInRange = monsters[i];
                         break;
                     }
                 }
+
                 if (!combatRange) {
                     monsterInRange.angry = false;
                 }
 
+                // determina se um monstro deve seguir o player
                 for (int i = 0; i < numMonsters; i++) {
                     monsterFollow(&monsters[i], &player, attackCooldown);
+                }
+
+                // respawn de monstros
+                respawnTimer++;
+                if (respawnTimer == 200) {
+                    respawnTimer = 0;
+                    for (int i = 0; i < numMonsters; i++) {
+                        if (monsters[i].health <= 0) {
+                            monsters[i] = initMonster(monsters[i].type, monsters[i].id, maplim);
+                        }
+                    }
                 }
 
                 redraw = true;
@@ -272,19 +307,48 @@ void gameMainLoop (
                                     break;
                                 }
                             }
-                            // switch (monsterInRange.id) {
-                            //     // determina em qual monstro vai o ataque
-                            //     //for
-                            //     case 0:
-                            //         castSpell(&troll, &player, magicMissile);
-                            //         break;
-                            //     case 1:
-                            //         castSpell(&troll2, &player, magicMissile);
-                            //         break;
-
-                            // }
                         }
                         break;
+                    case ALLEGRO_KEY_W:
+                        if (combatRange) {
+                            spell = true;
+
+                            for (int i = 0; i < numMonsters; i++) {
+                                if (monsterInRange.id == monsters[i].id) {
+                                    castSpell(&monsters[i], &player, magicMissile);
+                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case ALLEGRO_KEY_E:
+                        if (combatRange) {
+                            spell = true;
+
+                            for (int i = 0; i < numMonsters; i++) {
+                                if (monsterInRange.id == monsters[i].id) {
+                                    castSpell(&monsters[i], &player, magicMissile);
+                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case ALLEGRO_KEY_R:
+                        if (combatRange) {
+                            spell = true;
+
+                            for (int i = 0; i < numMonsters; i++) {
+                                if (monsterInRange.id == monsters[i].id) {
+                                    castSpell(&monsters[i], &player, magicMissile);
+                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
                 }
                 break;
 
@@ -320,8 +384,6 @@ void gameMainLoop (
             if (animationTimer < 10) {
                 al_draw_bitmap(playerImg->img1, player.x, player.y, player.direc);
                 
-                // monsterAnimation(troll, 1, trollImg);
-                // monsterAnimation(troll2, 1, trollImg);
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 1, trollImg);
@@ -333,8 +395,6 @@ void gameMainLoop (
             else if (animationTimer < 20) {
                 al_draw_bitmap(playerImg->img2, player.x, player.y, player.direc);
 
-                // monsterAnimation(troll, 2, trollImg);
-                // monsterAnimation(troll2, 2, trollImg);
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 2, trollImg);
@@ -346,8 +406,6 @@ void gameMainLoop (
             else if (animationTimer < 30) {
                 al_draw_bitmap(playerImg->img3, player.x, player.y, player.direc);
 
-                // monsterAnimation(troll, 3, trollImg);
-                // monsterAnimation(troll2, 3, trollImg);
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 3, trollImg);
@@ -359,8 +417,6 @@ void gameMainLoop (
             else {
                 al_draw_bitmap(playerImg->img4, player.x, player.y, player.direc);
 
-                // monsterAnimation(troll, 4, trollImg);
-                // monsterAnimation(troll2, 4, trollImg);
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 4, trollImg);
@@ -405,6 +461,7 @@ void gameMainLoop (
             redraw = false;
         }
     }
+    printf("fim do loop principal do jogo\n");
 }
 
 // recebe um monstro e o num da sprite para ser desenhada na tela
