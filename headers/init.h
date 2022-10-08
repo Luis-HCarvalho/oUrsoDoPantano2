@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
@@ -13,9 +14,17 @@
 // tamanho do display
 #define displayWidth 1280 // 40x32 tiles
 #define displayHeight 640 // 20x32 tiles
+#define maxNumMonsters 10
 
 // função para teste de inicializações
 void must_init (bool testInit, const char * description);
+
+typedef struct {
+    int rightBorder;
+    int leftBorder;
+    int bottomBorder;
+    int topBorder;
+} Maplimits;
 
 // struct jogador
 typedef struct {
@@ -48,7 +57,7 @@ typedef struct {
 void initPlayer (Player * player);
 
 // init Monster
-void initMonster (Monster * monster, int x, int y, int rank, int type, int id);
+Monster initMonster (int type, int id, Maplimits maplim);
 
 // tipos de monstros
 enum monstertype {

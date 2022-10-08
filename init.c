@@ -1,5 +1,4 @@
 #include "init.h"
-
 // função para teste de inicializações
 void must_init (bool testInit, const char * description) {
     if (testInit)
@@ -21,34 +20,49 @@ void initPlayer (Player * player) {
     player->mana = 50;
 }
 
-void initMonster (Monster * monster, int x, int y, int rank, int type, int id) {
-    monster->x = x;  // cordenada x
-    monster->y = y;  // cordenada y
-    monster->direc = 0;// direção da movimentação
-    monster->rank = rank;
-    monster->type = type;
-    monster->angry = false;
-    monster->id = id;
-    switch (monster->rank) {
-        case 1:     // golem
-            monster->health = 200;
-            monster->damage = 40;
+Monster initMonster (int type, int id, Maplimits maplim) {
+    Monster monster;
+    monster.type = type;
+    monster.id = id;
+    monster.angry = false;
+    
+    srand(rand() + id + time(NULL));
+    monster.x = (rand() % (maplim.rightBorder - maplim.leftBorder)) + maplim.leftBorder;
+    monster.y = (rand() % (maplim.bottomBorder - maplim.topBorder)) + maplim.topBorder;
+    monster.direc = rand() % 2;  // direção da movimentação
+
+    switch (type) {
+        case Slime:
+            monster.rank = 5;
+            monster.attackCooldown = 10;
             break;
-        case 2:
-            monster->health = 150;
-            monster->damage = 20;
-            break;
-        case 3:
-            monster->health = 100;
-            monster->damage = 20;
-            break;
-        case 4:
-            monster->health = 80;
-            monster->damage = 10;
-            break;
-        case 5:
-            monster->health = 50;
-            monster->damage = 5;
+        case Troll:
+            monster.rank = 4;
+            monster.attackCooldown = 10;
             break;
     }
+
+    switch (monster.rank) {
+        case 1:     // golem
+            monster.health = 200;
+            monster.damage = 40;
+            break;
+        case 2:
+            monster.health = 150;
+            monster.damage = 20;
+            break;
+        case 3:
+            monster.health = 100;
+            monster.damage = 20;
+            break;
+        case 4:
+            monster.health = 80;
+            monster.damage = 10;
+            break;
+        case 5:
+            monster.health = 50;
+            monster.damage = 5;
+            break;
+    }
+    return monster;
 }
