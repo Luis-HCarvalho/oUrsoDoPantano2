@@ -3,14 +3,14 @@
 #include "map.h"
 
 // (todo) implementar a possibilidade de gerar monstros diferentes
-//spawn de monstros
 // mudança de mapa (transição)
 
 // loop principal
-void gameMainLoop (
+bool gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
+    int * mapNav,
     char map[][maxMapWidth],
     Mapsize mapsize,
     Tiles * mapTiles,
@@ -25,6 +25,17 @@ void monsterAnimation (
     int animationNum,
     Sprites * monsterImg
 );
+
+// void loadMap (int mapNav, char * map[][maxMapWidth],Mapsize mapsize) {
+//     switch (mapNav) {
+//         case 1:
+//             getMap("./maps/map2.txt", map, &mapsize); 
+//             break;
+//         case 2:
+//             getMap("./maps/map2 .txt", map, &mapsize); 
+//             break;
+//     }
+// }
 
 int main () {
 
@@ -88,37 +99,45 @@ int main () {
     // mapa
     char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
     Mapsize mapsize;
-    getMap("./maps/map1.txt", map, &mapsize);  // retorna a posição dos tiles e o tamanho do mapa
+    int mapNav = 0;
 
     // começa o jogo
     al_start_timer(timer);
-
-    gameMainLoop(
-            timer,
-            queue,
-            font,
-            map,
-            mapsize,
-            &map1Tiles,
-            5,
-            &playerImg,
-            &trollImg
-    );
-
-    // load do segundo mapa
-    getMap("./maps/map2.txt", map, &mapsize);
-
-    gameMainLoop(
-            timer,
-            queue,
-            font,
-            map,
-            mapsize,
-            &map1Tiles,
-            2,
-            &playerImg,
-            &trollImg
-    );
+    
+    int numMonsters = 0;
+    bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
+    while (gameStatus) {
+        printf("mapNav: %d\n", mapNav);
+        switch (mapNav) {
+            case 1:
+                getMap("./maps/map1.txt", map, &mapsize);
+                mapNav = 0;
+                numMonsters = 5;
+                break;
+            case 2:
+                getMap("./maps/map2.txt", map, &mapsize);
+                numMonsters = 2;
+                mapNav = 0;
+                break;
+            default:
+                getMap("./maps/map1.txt", map, &mapsize);
+                numMonsters = 5;
+                mapNav = 0;
+                break;
+        }
+        gameStatus = gameMainLoop(
+                timer,
+                queue,
+                font,
+                &mapNav,
+                map,
+                mapsize,
+                &map1Tiles,
+                numMonsters,
+                &playerImg,
+                &trollImg
+        );
+    }
 
     // limpeza de recursos criados durante as inicializações
     al_destroy_timer(timer);
@@ -140,10 +159,11 @@ int main () {
 }
 
 // loop principal de execução do programa
-void gameMainLoop (
+bool gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
+    int * mapNav,
     char map[][maxMapWidth],
     Mapsize mapsize,
     Tiles * mapTiles,
@@ -175,7 +195,7 @@ void gameMainLoop (
     }
 
     // variáveis para o loop principal
-    bool done = false;
+    bool exit = false;
     bool redraw = true;
     bool combatRange = false;
     bool spell = false;
@@ -183,7 +203,7 @@ void gameMainLoop (
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
     int respawnTimer = 0;
 
-    while (!done) {
+    while (!exit && !*mapNav) {
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_wait_for_event(queue, &event);
 
@@ -231,6 +251,15 @@ void gameMainLoop (
                     }
                 }
 
+                // navegação entre mapas
+                if (player.x == maplim.rightBorder) {
+                    
+                    *mapNav = 1;
+                }
+                else if (player.x == maplim.leftBorder) {
+                    *mapNav = 2;
+                }
+
                 redraw = true;
                 break;
 
@@ -267,28 +296,28 @@ void gameMainLoop (
                 switch (event.keyboard.keycode) {
                     case ALLEGRO_KEY_UP:
                         if (player.y > maplim.topBorder) {
-                            player.y  -= player.speed;
+                            player.y  -= (player.speed + 2);
                         }
                         break;
                     case ALLEGRO_KEY_DOWN:
                         if (player.y < maplim.bottomBorder) {
-                            player.y += player.speed;
+                            player.y += (player.speed + 2);
                         }
                         break;
                     case ALLEGRO_KEY_LEFT:
                         if (player.x > maplim.leftBorder) {
-                            player.x -= player.speed;
+                            player.x -= (player.speed + 2);
                             player.direc = 1;
                         }
                         break;
                     case ALLEGRO_KEY_RIGHT:
                         if (player.x < maplim.rightBorder) {
-                            player.x += player.speed;
+                            player.x += (player.speed + 2);
                             player.direc = 0;
                         }
                         break;
                     case ALLEGRO_KEY_ESCAPE:
-                        done = true;
+                        exit = true;
                         break;
                 }
                 break;
@@ -315,7 +344,7 @@ void gameMainLoop (
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, magicMissile);
+                                    castSpell(&monsters[i], &player, fireBall);
                                     printf("%dvida: %d\n", i,monsters[i].health);
                                     break;
                                 }
@@ -328,7 +357,7 @@ void gameMainLoop (
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, magicMissile);
+                                    castSpell(&monsters[i], &player, lightning);
                                     printf("%dvida: %d\n", i,monsters[i].health);
                                     break;
                                 }
@@ -341,7 +370,7 @@ void gameMainLoop (
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, magicMissile);
+                                    castSpell(&monsters[i], &player, iceSpear);
                                     printf("%dvida: %d\n", i,monsters[i].health);
                                     break;
                                 }
@@ -353,11 +382,11 @@ void gameMainLoop (
                 break;
 
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
-                done = true;
+                exit = true;
                 break;
         }
 
-        if(done)
+        if(exit)
             break;
 
         if(redraw && al_is_event_queue_empty(queue)) {
@@ -445,7 +474,7 @@ void gameMainLoop (
 
             // barra de vida
             if (player.health < 0) {
-                done = true;
+                exit = true;
             }
             else {
                 al_draw_textf(font, al_map_rgb(255, 255, 255), (player.health + 30), 20, 0, "%d", player.health);
@@ -460,6 +489,12 @@ void gameMainLoop (
 
             redraw = false;
         }
+    }
+    if (player.health <= 0 || exit) {
+        return false;
+    }
+    else {
+        return true;
     }
     printf("fim do loop principal do jogo\n");
 }
