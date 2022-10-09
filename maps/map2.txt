@@ -1,11 +1,17 @@
-10 15 4
-wwwwwwwwwwwwwww
-wwwwwwwwwwwwwww
-wwwwwwwwwwwwwww
-wwwwwwwwwwwwwww
-fffffffffffffff
-fffffffffffffff
-fffffffffffffff
-fffffffffffffff
-fffffffffffffff
-fffffffffffffff
+16 20 2
+cttttttttttttttttttd
+lwwwwwwwwwwwwwwwwwwr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+CbbbbbbbbbbbbbbbbbbD

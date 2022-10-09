@@ -83,6 +83,9 @@ int main () {
 
     // carrega tiles para o mapa
     Tiles mapTiles;
+    mapTiles.top = al_load_bitmap("./assets/tiles/wall_top.png");
+    mapTiles.topSide = al_load_bitmap("./assets/tiles/wall_top_side.png");
+    mapTiles.topCorner = al_load_bitmap("./assets/tiles/wall_top_corner.png");
     mapTiles.wall = al_load_bitmap("./assets/tiles/wall.png");
     mapTiles.floor1 = al_load_bitmap("./assets/tiles/floor_1.png");
     mapTiles.floor2 = al_load_bitmap("./assets/tiles/floor_2.png");
@@ -173,6 +176,9 @@ int main () {
     al_destroy_bitmap(bigRedImg.walk3);
     al_destroy_bitmap(bigRedImg.walk4);
 
+    al_destroy_bitmap(mapTiles.top);
+    al_destroy_bitmap(mapTiles.topSide);
+    al_destroy_bitmap(mapTiles.topCorner);
     al_destroy_bitmap(mapTiles.wall);
     al_destroy_bitmap(mapTiles.floor1);
     al_destroy_bitmap(mapTiles.floor2);
@@ -202,9 +208,9 @@ bool gameMainLoop (
     // limites do mapa
     Maplimits maplim;
     maplim.leftBorder = (displayWidth -  mapsize.width * sizeTile) / 2;
-    maplim.rightBorder = displayWidth - maplim.leftBorder - 32;
+    maplim.rightBorder = displayWidth - maplim.leftBorder - (sizeTile * 2);
     maplim.topBorder = (mapsize.wall * sizeTile - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
-    maplim.bottomBorder = displayHeight - ((displayHeight -  mapsize.height * sizeTile) / 2) - 36;
+    maplim.bottomBorder = displayHeight - ((displayHeight -  mapsize.height * sizeTile) / 2) - (sizeTile * 3);
 
     // determina uma ordem aleatória dos tiles de piso no mapa
     int tilesOrder[maxMapHeight * maxMapWidth];
@@ -424,7 +430,31 @@ bool gameMainLoop (
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapsize.height * mapsize.width; i++) {
                 // (i / mapsize.width) == linha, (i % mapsize.width) == coluna
-                if (map[i / mapsize.width][i % mapsize.width] == 'w') {
+                if (map[i / mapsize.width][i % mapsize.width] == 't') {
+                    al_draw_bitmap(mapTiles->top, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'l') {
+                    al_draw_bitmap(mapTiles->topSide, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'r') {
+                    al_draw_bitmap(mapTiles->topSide, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), ALLEGRO_FLIP_HORIZONTAL);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'b') {
+                    al_draw_bitmap(mapTiles->top, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), ALLEGRO_FLIP_VERTICAL);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'c') {
+                    al_draw_bitmap(mapTiles->topCorner, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'd') {
+                    al_draw_bitmap(mapTiles->topCorner, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), ALLEGRO_FLIP_HORIZONTAL);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'C') {
+                    al_draw_bitmap(mapTiles->topCorner, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), ALLEGRO_FLIP_VERTICAL);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'D') {
+                    al_draw_bitmap(mapTiles->topCorner, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), ALLEGRO_FLIP_HORIZONTAL + ALLEGRO_FLIP_VERTICAL);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'w') {
                     al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
                 }
                 else if (map[i / mapsize.width][i % mapsize.width] == 'f') {

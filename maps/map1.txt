@@ -1,13 +1,21 @@
-12 20 2
-wwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwwwwwww
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
-ffffffffffffffffffff
+20 20 2
+cttttttttttttttttttd
+lwwwwwwwwwwwwwwwwwwr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+lffffffffffffffffffr
+CbbbbbbbbbbbbbbbbbbD

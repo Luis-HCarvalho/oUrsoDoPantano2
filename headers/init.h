@@ -88,6 +88,9 @@ typedef struct {
 } Sprites;
 
 typedef struct {
+    ALLEGRO_BITMAP * top;
+    ALLEGRO_BITMAP * topSide;
+    ALLEGRO_BITMAP * topCorner;
     ALLEGRO_BITMAP * wall;
     ALLEGRO_BITMAP * floor1;
     ALLEGRO_BITMAP * floor2;

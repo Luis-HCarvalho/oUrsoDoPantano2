@@ -1,9 +1,15 @@
 /* legenda do mapa: 
     primeira linha -> valores de altura, largura e altura da parede nessa ordem
+    t = parte de cima da parede
+    l = parte de cima da parede (esquerda do mapa)
+    r = parte de cima da parede (direita do mapa)
+    b = parte de cima da parede (parte de baixo do mapa)
+    c = parte de cima da parede, canto (esquerda do mapa)
+    d = parte de cima da parede, canto (direita do mapa)
+    C = parte de cima da parede, canto (parte inferior esquerda do mapa)
+    D = parte de cima da parede, canto (parte inferior direita do mapa)
     w = parede
     f = piso
-    t -> spike trap
-
 
 */
 
