@@ -19,4 +19,5 @@
 <ul>
   <li>https://0x72.itch.io/dungeontileset-ii</li>
   <li>https://superdark.itch.io/enchanted-forest-characters</li>
+  <li>https://melthie.itch.io/mini-dungeon</li>
 </ul>
