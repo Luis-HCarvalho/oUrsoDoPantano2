@@ -19,12 +19,21 @@
 // função para teste de inicializações
 void must_init (bool testInit, const char * description);
 
+// limites do mapa
 typedef struct {
     int rightBorder;
     int leftBorder;
     int bottomBorder;
     int topBorder;
 } Maplimits;
+
+// movimentação do player
+typedef struct {
+    int up;
+    int down;
+    int left;
+    int right;
+} PlayerMov;
 
 // struct jogador
 typedef struct {
@@ -62,21 +71,27 @@ Monster initMonster (int type, int id, Maplimits maplim);
 // tipos de monstros
 enum monstertype {
     Slime = 0,
-    Troll
+    Troll,
+    bigRed
 };
 
 
 typedef struct {
-    ALLEGRO_BITMAP * img1;
-    ALLEGRO_BITMAP * img2;
-    ALLEGRO_BITMAP * img3;
-    ALLEGRO_BITMAP * img4;
+    ALLEGRO_BITMAP * idle1;
+    ALLEGRO_BITMAP * idle2;
+    ALLEGRO_BITMAP * idle3;
+    ALLEGRO_BITMAP * idle4;
+    ALLEGRO_BITMAP * walk1;
+    ALLEGRO_BITMAP * walk2;
+    ALLEGRO_BITMAP * walk3;
+    ALLEGRO_BITMAP * walk4;
 } Sprites;
 
 typedef struct {
     ALLEGRO_BITMAP * wall;
-    ALLEGRO_BITMAP * floor;
+    ALLEGRO_BITMAP * floor1;
     ALLEGRO_BITMAP * floor2;
+    ALLEGRO_BITMAP * floor3;
     ALLEGRO_BITMAP * trap;
 } Tiles;
 

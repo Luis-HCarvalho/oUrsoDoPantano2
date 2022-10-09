@@ -4,7 +4,7 @@
 // tamanho mapa (quantidade de tiles)
 #define maxMapHeight 20
 #define maxMapWidth 60
-#define sizeTile 32 // tamanho em px dos tiles
+#define sizeTile 16 // tamanho em px dos tiles
 
 // dimensoes do mapa
 typedef struct {

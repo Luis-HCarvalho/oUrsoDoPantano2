@@ -16,7 +16,9 @@ bool gameMainLoop (
     Tiles * mapTiles,
     int numMonsters,
     Sprites * playerImg,
-    Sprites * trollImg
+    int typeMonsters,
+    Sprites * trollImg,
+    Sprites * bigRedImg
 );
 
 // desenha o sprite do monstro na tela, recebe o monstro os srpites e o num da sprite para desenhar
@@ -48,37 +50,43 @@ int main () {
 
     // carrega os sprites de movimentação do player
     Sprites playerImg;
-    playerImg.img1 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_1.png");
-    playerImg.img2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
-    playerImg.img3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
-    playerImg.img4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
+    playerImg.idle1 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_1.png");
+    playerImg.idle2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
+    playerImg.idle3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
+    playerImg.idle4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
 
-    must_init(playerImg.img1, "playerImg1");
-    must_init(playerImg.img2, "playerImg2");
-    must_init(playerImg.img3, "playerImg3");
-    must_init(playerImg.img4, "playerImg4");
+    must_init(playerImg.idle1, "playerImg1");
+    must_init(playerImg.idle2, "playerImg2");
+    must_init(playerImg.idle3, "playerImg3");
+    must_init(playerImg.idle4, "playerImg4");
 
     // carrega os sprites de movimentação de troll
     Sprites trollImg;
-    trollImg.img1 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_1.png");
-    trollImg.img2 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_2.png");
-    trollImg.img3 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_3.png");
-    trollImg.img4 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_4.png");
+    trollImg.idle1 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_1.png");
+    trollImg.idle2 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_2.png");
+    trollImg.idle3 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_3.png");
+    trollImg.idle4 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_4.png");
+    trollImg.walk1 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_1.png");
+    trollImg.walk2 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_2.png");
+    trollImg.walk3 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_3.png");
+    trollImg.walk4 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_4.png");
 
-    must_init(trollImg.img1, "trollImg1");
-    must_init(trollImg.img2, "trollImg2");
-    must_init(trollImg.img3, "trollImg3");
-    must_init(trollImg.img4, "trollImg4");
+    Sprites bigRedImg;
+    bigRedImg.idle1 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle1.png");
+    bigRedImg.idle2 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle2.png");
+    bigRedImg.idle3 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle3.png");
+    bigRedImg.idle4 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle4.png");
+    bigRedImg.walk1 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk1.png");
+    bigRedImg.walk2 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk2.png");
+    bigRedImg.walk3 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk3.png");
+    bigRedImg.walk4 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk4.png");
 
     // carrega tiles para o mapa
-    Tiles map1Tiles;
-    map1Tiles.wall = al_load_bitmap("./assets/tiles/brickWall.png");
-    map1Tiles.floor = al_load_bitmap("./assets/tiles/tileTest.png");
-    map1Tiles.floor2 = al_load_bitmap("./assets/tiles/tileTest2.png");
-
-    must_init(map1Tiles.wall, "brickWall");
-    must_init(map1Tiles.floor, "tile1");
-    must_init(map1Tiles.floor2, "tile2");
+    Tiles mapTiles;
+    mapTiles.wall = al_load_bitmap("./assets/tiles/wall.png");
+    mapTiles.floor1 = al_load_bitmap("./assets/tiles/floor_1.png");
+    mapTiles.floor2 = al_load_bitmap("./assets/tiles/floor_2.png");
+    mapTiles.floor3 = al_load_bitmap("./assets/tiles/floor_3.png");
 
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -94,23 +102,29 @@ int main () {
     al_start_timer(timer);
     
     int numMonsters = 0;
+    int typeMonsters;
     bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
     while (gameStatus) {
         printf("mapNav: %d\n", mapNav);
+        printf("bigRed: %d\n", bigRed);
         switch (mapNav) {
             case 1:
                 getMap("./maps/map1.txt", map, &mapsize);
+                numMonsters = 4;
+                typeMonsters = bigRed;
                 mapNav = 0;
-                numMonsters = 5;
                 break;
             case 2:
                 getMap("./maps/map2.txt", map, &mapsize);
                 numMonsters = 2;
+                typeMonsters = Troll;
                 mapNav = 0;
+
                 break;
             default:
                 getMap("./maps/map1.txt", map, &mapsize);
-                numMonsters = 5;
+                numMonsters = 0;
+                typeMonsters = Troll;
                 mapNav = 0;
                 break;
         }
@@ -121,10 +135,12 @@ int main () {
                 &mapNav,
                 map,
                 mapsize,
-                &map1Tiles,
+                &mapTiles,
                 numMonsters,
                 &playerImg,
-                &trollImg
+                typeMonsters,
+                &trollImg,
+                &bigRedImg
         );
     }
 
@@ -134,15 +150,33 @@ int main () {
     al_destroy_display(display);
     al_destroy_font(font);
 
-    al_destroy_bitmap(playerImg.img1);
-    al_destroy_bitmap(playerImg.img2);
-    al_destroy_bitmap(playerImg.img3);
-    al_destroy_bitmap(playerImg.img4);
+    al_destroy_bitmap(playerImg.idle1);
+    al_destroy_bitmap(playerImg.idle2);
+    al_destroy_bitmap(playerImg.idle3);
+    al_destroy_bitmap(playerImg.idle4);
 
-    al_destroy_bitmap(trollImg.img1);
-    al_destroy_bitmap(trollImg.img2);
-    al_destroy_bitmap(trollImg.img3);
-    al_destroy_bitmap(trollImg.img4);
+    al_destroy_bitmap(trollImg.idle1);
+    al_destroy_bitmap(trollImg.idle2);
+    al_destroy_bitmap(trollImg.idle3);
+    al_destroy_bitmap(trollImg.idle4);
+    al_destroy_bitmap(trollImg.walk1);
+    al_destroy_bitmap(trollImg.walk2);
+    al_destroy_bitmap(trollImg.walk3);
+    al_destroy_bitmap(trollImg.walk4);
+
+    al_destroy_bitmap(bigRedImg.idle1);
+    al_destroy_bitmap(bigRedImg.idle2);
+    al_destroy_bitmap(bigRedImg.idle3);
+    al_destroy_bitmap(bigRedImg.idle4);
+    al_destroy_bitmap(bigRedImg.walk1);
+    al_destroy_bitmap(bigRedImg.walk2);
+    al_destroy_bitmap(bigRedImg.walk3);
+    al_destroy_bitmap(bigRedImg.walk4);
+
+    al_destroy_bitmap(mapTiles.wall);
+    al_destroy_bitmap(mapTiles.floor1);
+    al_destroy_bitmap(mapTiles.floor2);
+    al_destroy_bitmap(mapTiles.floor3);
 
     return 0;
 }
@@ -158,7 +192,9 @@ bool gameMainLoop (
     Tiles * mapTiles,
     int numMonsters,
     Sprites * playerImg,
-    Sprites * trollImg
+    int typeMonsters,
+    Sprites * trollImg,
+    Sprites * bigRedImg
 ) {
     
     ALLEGRO_EVENT event;
@@ -167,12 +203,25 @@ bool gameMainLoop (
     Maplimits maplim;
     maplim.leftBorder = (displayWidth -  mapsize.width * sizeTile) / 2;
     maplim.rightBorder = displayWidth - maplim.leftBorder - 32;
-    maplim.topBorder = (mapsize.wall * 32 - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
+    maplim.topBorder = (mapsize.wall * sizeTile - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
     maplim.bottomBorder = displayHeight - ((displayHeight -  mapsize.height * sizeTile) / 2) - 36;
+
+    // determina uma ordem aleatória dos tiles de piso no mapa
+    int tilesOrder[maxMapHeight * maxMapWidth];
+    for (int i = 0; i < mapsize.height * mapsize.width; i++) {
+        srand(rand() + i + time(NULL));
+        tilesOrder[i] = rand() % 3 + 1;
+    }
 
     // player
     Player player;
     initPlayer(&player);
+
+    PlayerMov mov;
+    mov.up = 0;
+    mov.down = 0;
+    mov.right = 0;
+    mov.left = 0;
 
     // o monstro que esta no range de combate do player
     Monster monsterInRange;
@@ -180,7 +229,7 @@ bool gameMainLoop (
     // init monstros
     Monster monsters[maxNumMonsters];
     for (int i = 0; i < numMonsters; i++) {
-        monsters[i] = initMonster(Troll, i, maplim);
+        monsters[i] = initMonster(typeMonsters, i, maplim);
     }
 
     // variáveis para o loop principal
@@ -199,6 +248,23 @@ bool gameMainLoop (
         switch(event.type) {
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
+
+                // mov
+                if (mov.up && player.y > maplim.topBorder) {
+                    player.y -= player.speed;
+                }
+                if (mov.down && player.y < maplim.bottomBorder) {
+                    player.y += player.speed;
+                }
+                if (mov.left && player.x > maplim.leftBorder) {
+                    player.x -= player.speed;
+                    player.direc = 1;
+                }
+                if (mov.right && player.x < maplim.rightBorder) {
+                    player.x += player.speed;
+                    player.direc = 0;
+                }
+
                 // cooldown ataques dos monstros e recuperação de mana
                 if (attackCooldown <= 20){
                     attackCooldown++;
@@ -241,69 +307,31 @@ bool gameMainLoop (
                 }
 
                 // navegação entre mapas
-                if (player.x == maplim.rightBorder) {
-                    
+                if (player.x > maplim.rightBorder - 4) {
+                    printf("rightB\n");
                     *mapNav = 1;
                 }
-                else if (player.x == maplim.leftBorder) {
+                else if (player.x < maplim.leftBorder + 4) {
                     *mapNav = 2;
                 }
 
                 redraw = true;
                 break;
 
-            // movimentação continua
-            case ALLEGRO_EVENT_KEY_CHAR:
-                if (event.keyboard.repeat) {
-                    switch (event.keyboard.keycode) {
-                        case ALLEGRO_KEY_UP:
-                            if (player.y > maplim.topBorder) {
-                                player.y -= player.speed;
-                            }
-                            break;
-                        case ALLEGRO_KEY_DOWN:
-                            if (player.y < maplim.bottomBorder) {
-                                player.y += player.speed;
-                            }
-                            break;
-                        case ALLEGRO_KEY_LEFT:
-                            if (player.x > maplim.leftBorder) {
-                                player.x -= player.speed;
-                                player.direc = 1;
-                            }
-                            break;
-                        case ALLEGRO_KEY_RIGHT:
-                            if (player.x < maplim.rightBorder) {
-                                player.x += player.speed;
-                                player.direc = 0;
-                            }
-                            break;
-                    }
-                }
             // movimentação por tecla pressionada
             case ALLEGRO_EVENT_KEY_DOWN:
                 switch (event.keyboard.keycode) {
                     case ALLEGRO_KEY_UP:
-                        if (player.y > maplim.topBorder) {
-                            player.y  -= (player.speed + 2);
-                        }
+                        mov.up = 1;
                         break;
                     case ALLEGRO_KEY_DOWN:
-                        if (player.y < maplim.bottomBorder) {
-                            player.y += (player.speed + 2);
-                        }
+                        mov.down =  1;
                         break;
                     case ALLEGRO_KEY_LEFT:
-                        if (player.x > maplim.leftBorder) {
-                            player.x -= (player.speed + 2);
-                            player.direc = 1;
-                        }
+                        mov.left = 1;
                         break;
                     case ALLEGRO_KEY_RIGHT:
-                        if (player.x < maplim.rightBorder) {
-                            player.x += (player.speed + 2);
-                            player.direc = 0;
-                        }
+                        mov.right = 1;
                         break;
                     case ALLEGRO_KEY_ESCAPE:
                         exit = true;
@@ -314,6 +342,19 @@ bool gameMainLoop (
             // magias (ataques do player)
             case ALLEGRO_EVENT_KEY_UP:
                 switch (event.keyboard.keycode) {
+                    case ALLEGRO_KEY_UP:
+                        mov.up = 0;
+                        break;
+                    case ALLEGRO_KEY_DOWN:
+                        mov.down =  0;
+                        break;
+                    case ALLEGRO_KEY_LEFT:
+                        mov.left = 0;
+                        break;
+                    case ALLEGRO_KEY_RIGHT:
+                        mov.right = 0;
+                        break;
+
                     case ALLEGRO_KEY_Q:
                         if (combatRange) {
                             spell = true;
@@ -381,14 +422,22 @@ bool gameMainLoop (
         if(redraw && al_is_event_queue_empty(queue)) {
 
             // construção do mapa (coloca os tiles no lugar)
-            for (int i = 0; i < mapsize.height; i++) {
-                for (int j = 0; j < mapsize.width; j++) {
-                    // desenha os tiles do mapa centralizados
-                    if (map[i][j] == 'w') {
-                        al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + (j * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + (i * sizeTile), 0);
-                    }
-                    else if (map[i][j] == 't') {
-                        al_draw_bitmap(mapTiles->floor, ((displayWidth -  mapsize.width * sizeTile) / 2) + (j * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + (i * sizeTile), 0);
+            for (int i = 0; i < mapsize.height * mapsize.width; i++) {
+                // (i / mapsize.width) == linha, (i % mapsize.width) == coluna
+                if (map[i / mapsize.width][i % mapsize.width] == 'w') {
+                    al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'f') {
+                    switch(tilesOrder[i]) {
+                        case 1:
+                            al_draw_bitmap(mapTiles->floor1, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                            break;
+                        case 2:
+                            al_draw_bitmap(mapTiles->floor1, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                            break;
+                        case 3:
+                            al_draw_bitmap(mapTiles->floor3, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                            break;
                     }
                 }
             }
@@ -399,45 +448,57 @@ bool gameMainLoop (
             }
 
             // desenha a sprite player e monstros
-            if (animationTimer < 10) {
-                al_draw_bitmap(playerImg->img1, player.x, player.y, player.direc);
+            if (animationTimer < 20) {
+                al_draw_bitmap(playerImg->idle1, player.x, player.y, player.direc);
                 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 1, trollImg);
                     }
-                }
-
-                animationTimer++;
-            }
-            else if (animationTimer < 20) {
-                al_draw_bitmap(playerImg->img2, player.x, player.y, player.direc);
-
-                for (int i = 0; i < numMonsters; i++) {
-                    if (monsters[i].type == Troll) {
-                        monsterAnimation(monsters[i], 2, trollImg);
+                    else if (monsters[i].type == bigRed) {
+                        monsterAnimation(monsters[i], 1, bigRedImg);
                     }
                 }
 
                 animationTimer++;
             }
-            else if (animationTimer < 30) {
-                al_draw_bitmap(playerImg->img3, player.x, player.y, player.direc);
+            else if (animationTimer < 40) {
+                al_draw_bitmap(playerImg->idle2, player.x, player.y, player.direc);
+
+                for (int i = 0; i < numMonsters; i++) {
+                    if (monsters[i].type == Troll) {
+                        monsterAnimation(monsters[i], 2, trollImg);
+                    }
+                    else if (monsters[i].type == bigRed) {
+                        monsterAnimation(monsters[i], 2, bigRedImg);
+                    }
+                }
+
+                animationTimer++;
+            }
+            else if (animationTimer < 60) {
+                al_draw_bitmap(playerImg->idle3, player.x, player.y, player.direc);
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 3, trollImg);
+                    }
+                    else if (monsters[i].type == bigRed) {
+                        monsterAnimation(monsters[i], 3, bigRedImg);
                     }
                 }
 
                 animationTimer++;
             }
             else {
-                al_draw_bitmap(playerImg->img4, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->idle4, player.x, player.y, player.direc);
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
                         monsterAnimation(monsters[i], 4, trollImg);
+                    }
+                    else if (monsters[i].type == bigRed) {
+                        monsterAnimation(monsters[i], 4, bigRedImg);
                     }
                 }
 
@@ -498,16 +559,36 @@ void monsterAnimation (
     if (monster.health > 0) {
         switch (animationNum) {
             case 1:
-                al_draw_bitmap(monsterImg->img1, monster.x, monster.y, monster.direc);
+                if (monster.angry) {
+                    al_draw_bitmap(monsterImg->walk1, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap(monsterImg->idle1, monster.x, monster.y, monster.direc);
+                }
                 break;
             case 2:
-                al_draw_bitmap(monsterImg->img2, monster.x, monster.y, monster.direc);
+                if (monster.angry) {
+                    al_draw_bitmap(monsterImg->walk2, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap(monsterImg->idle2, monster.x, monster.y, monster.direc);
+                }
                 break;
             case 3:
-                al_draw_bitmap(monsterImg->img3, monster.x, monster.y, monster.direc);
+                if (monster.angry) {
+                    al_draw_bitmap(monsterImg->walk3, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap(monsterImg->idle3, monster.x, monster.y, monster.direc);
+                }
                 break;
             case 4:
-                al_draw_bitmap(monsterImg->img4, monster.x, monster.y, monster.direc);
+                if (monster.angry) {
+                    al_draw_bitmap(monsterImg->walk4, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap(monsterImg->idle4, monster.x, monster.y, monster.direc);
+                }
                 break;
         }
     }

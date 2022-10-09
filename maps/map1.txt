@@ -1,18 +1,13 @@
-17 20 3
+12 20 2
 wwwwwwwwwwwwwwwwwwww
 wwwwwwwwwwwwwwwwwwww
-wwwwwwwwwwwwwwwwwwww
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
-tttttttttttttttttttt
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
+ffffffffffffffffffff
