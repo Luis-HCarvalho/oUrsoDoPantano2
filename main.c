@@ -2,9 +2,6 @@
 #include "combat.h"
 #include "map.h"
 
-// (todo) implementar a possibilidade de gerar monstros diferentes
-// mudança de mapa (transição)
-
 // loop principal
 bool gameMainLoop (
     ALLEGRO_TIMER * timer,
@@ -54,11 +51,6 @@ int main () {
     playerImg.idle2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
     playerImg.idle3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
     playerImg.idle4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
-
-    must_init(playerImg.idle1, "playerImg1");
-    must_init(playerImg.idle2, "playerImg2");
-    must_init(playerImg.idle3, "playerImg3");
-    must_init(playerImg.idle4, "playerImg4");
 
     // carrega os sprites de movimentação de troll
     Sprites trollImg;
@@ -320,6 +312,9 @@ bool gameMainLoop (
                 else if (player.x < maplim.leftBorder + 4) {
                     *mapNav = 2;
                 }
+                // else if (player.y > maplim.bottomBorder - 4) {
+                //     *mapNav = 1;
+                // }
 
                 redraw = true;
                 break;

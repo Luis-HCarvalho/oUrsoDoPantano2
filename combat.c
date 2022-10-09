@@ -46,25 +46,25 @@ void castSpell (Monster * monster, Player * player, int spell) {
             case magicMissile:
                 if (player->mana > 5) {
                     player->mana -= 5;
-                monster->health -= damage;
+                    monster->health -= damage;
                 }
                 break;
             case fireBall:
                 if (player->mana > 10) {
                     player->mana -= 10;
-                monster->health -= damage;
+                    monster->health -= damage;
                 }
                 break;
             case lightning:
                 if (player->mana > 15) {
                     player->mana -= 15;
-                monster->health -= damage;
+                    monster->health -= damage;
                 }
                 break;
             case iceSpear:
                 if (player->mana > 20) {
                     player->mana -= 20;
-                monster->health -= damage;
+                    monster->health -= damage;
                 }
                 break;
         } 
