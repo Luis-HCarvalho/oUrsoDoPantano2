@@ -2,8 +2,8 @@
 #include "combat.h"
 #include "map.h"
 
-// add andares para a dungeon
-// add criaao de mapas autonoma (gerar txt)
+// substituir mapNav por floorNumber/profundidade e gerar monstros de acordo com a profundidade
+// se o player morrer ele tem que provar seus conhecimentos para o ceifador para ganhar mais chance(vida)
 
 // loop principal
 bool gameMainLoop (
@@ -107,22 +107,21 @@ int main () {
     while (gameStatus) {
         // printf("mapNav: %d\n", mapNav);
         // printf("bigRed: %d\n", bigRed);
+        mapGenerator();
+        getMap("./maps/map.txt", map, &mapsize);
         switch (mapNav) {
             case 1:
-                getMap("./maps/map1.txt", map, &mapsize);
                 numMonsters = 4;
                 typeMonsters = bigRed;
                 mapNav = 0;
                 break;
             case 2:
-                getMap("./maps/map2.txt", map, &mapsize);
                 numMonsters = 2;
                 typeMonsters = Troll;
                 mapNav = 0;
                 break;
             default:
                 // primeiro andar da dungeon
-                getMap("./maps/map1.txt", map, &mapsize);
                 numMonsters = 0;
                 //typeMonsters = Troll;
                 mapNav = 0;

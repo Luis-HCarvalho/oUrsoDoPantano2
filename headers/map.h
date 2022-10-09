@@ -24,4 +24,6 @@ enum MapNavigation {
 // recebe o path para o txt do mapa e uma matrix para armazenar map[maxMapHeight][maxMapWidth]
 void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize);
 
+void mapGenerator();
+
 #endif // MAP_H

@@ -41,3 +41,87 @@ void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize) {
     // fecha o arquivo do mapa
 	fclose(mapFile);
 }
+
+void mapGenerator () {
+
+    char filename[] = "./maps/map.txt";
+
+    // open file
+    FILE * mapFile = fopen(filename, "w");
+    if (mapFile == NULL) {
+        printf("error in %s", filename);
+    }
+
+    // define as proporções do mapa
+    srand(time(NULL));
+    int mapHeight = rand() % maxMapHeight;
+    int mapWidth = rand() % maxMapWidth;
+
+    if (mapHeight < 10) {
+        mapHeight += 10;
+    }
+    if (mapWidth < 10) {
+        mapWidth += 10;
+    }
+
+    // escreve no arquivo txt (construção do mapa)
+    for (int line = 0; line <= mapHeight; line++) {
+        if (line == 0) {
+            fprintf(mapFile, "%d %d %d\n", mapHeight, mapWidth, 2);
+        }
+        else if (line == 1) {
+            for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
+                if (tileCode == 0) {
+                    fprintf(mapFile, "c");
+                }
+                else if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "d\n");
+                }
+                else {
+                    fprintf(mapFile, "t");
+                }
+            }
+        }
+        else if (line == 2) {
+            for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
+                if (tileCode == 0) {
+                    fprintf(mapFile, "l");
+                }
+                else if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "r\n");
+                }
+                else {
+                    fprintf(mapFile, "w");
+                }
+            }
+        }
+        else if (line  == mapHeight) {
+            for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
+                if (tileCode == 0) {
+                    fprintf(mapFile, "C");
+                }
+                else if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "D");
+                }
+                else {
+                    fprintf(mapFile, "b");
+                }
+            }
+        }
+        else {
+            for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
+                if (tileCode == 0) {
+                    fprintf(mapFile, "l");
+                }
+                else if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "r\n");
+                }
+                else {
+                    fprintf(mapFile, "f");
+                }
+            }
+        }
+    }
+
+    fclose(mapFile);
+}
