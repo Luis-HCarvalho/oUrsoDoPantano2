@@ -2,12 +2,16 @@
 #include "combat.h"
 #include "map.h"
 
+// add andares para a dungeon
+// add criaao de mapas autonoma (gerar txt)
+
 // loop principal
 bool gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
     int * mapNav,
+    int * floorNumber,
     char map[][maxMapWidth],
     Mapsize mapsize,
     Tiles * mapTiles,
@@ -98,10 +102,11 @@ int main () {
     
     int numMonsters = 0;
     int typeMonsters;
+    int floorNumber = 0;
     bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
     while (gameStatus) {
-        printf("mapNav: %d\n", mapNav);
-        printf("bigRed: %d\n", bigRed);
+        // printf("mapNav: %d\n", mapNav);
+        // printf("bigRed: %d\n", bigRed);
         switch (mapNav) {
             case 1:
                 getMap("./maps/map1.txt", map, &mapsize);
@@ -114,12 +119,12 @@ int main () {
                 numMonsters = 2;
                 typeMonsters = Troll;
                 mapNav = 0;
-
                 break;
             default:
+                // primeiro andar da dungeon
                 getMap("./maps/map1.txt", map, &mapsize);
                 numMonsters = 0;
-                typeMonsters = Troll;
+                //typeMonsters = Troll;
                 mapNav = 0;
                 break;
         }
@@ -128,6 +133,7 @@ int main () {
                 queue,
                 font,
                 &mapNav,
+                &floorNumber,
                 map,
                 mapsize,
                 &mapTiles,
@@ -137,6 +143,7 @@ int main () {
                 &trollImg,
                 &bigRedImg
         );
+        floorNumber++;
     }
 
     // limpeza de recursos criados durante as inicializações
@@ -185,6 +192,7 @@ bool gameMainLoop (
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
     int * mapNav,
+    int * floorNumber,
     char map[][maxMapWidth],
     Mapsize mapsize,
     Tiles * mapTiles,
@@ -559,6 +567,9 @@ bool gameMainLoop (
             //barra de mana
             al_draw_textf(font, al_map_rgb(255, 255, 255), (player.mana + 30), 35, 0, "%d", player.mana);
             al_draw_filled_rectangle(20, 35, (player.mana + 20), 42, al_map_rgba_f(0, 0, 255, 0.5));
+
+            // andar
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 65, 0, "Profundidade: %d", *floorNumber);
 
             al_flip_display();
 
