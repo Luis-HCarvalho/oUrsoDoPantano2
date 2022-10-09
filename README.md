@@ -12,7 +12,7 @@
 <h3>Documentação allegro</h3>
 <ul>
   <li>quickstart: https://github.com/liballeg/allegro_wiki/wiki/Quickstart</li>
-  <li>wiki: https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace<li>
+  <li>wiki: https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace</li>
 </ul>
 
 <h3>Assets</h3>
