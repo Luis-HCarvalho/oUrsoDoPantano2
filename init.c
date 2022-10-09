@@ -40,6 +40,10 @@ Monster initMonster (int type, int id, Maplimits maplim) {
             monster.rank = 4;
             monster.attackCooldown = 10;
             break;
+        case bigRed:
+            monster.rank = 4;
+            monster.attackCooldown = 10;
+            break;
     }
 
     switch (monster.rank) {
