@@ -37,7 +37,7 @@ int main () {
     must_init(al_init_image_addon(), "imgageAddon");
     must_init(al_init_primitives_addon(), "primitives");
 
-    ALLEGRO_TIMER * timer = al_create_timer(1.0 / 40.0);
+    ALLEGRO_TIMER * timer = al_create_timer(1.0 / 45.0);
     must_init(timer, "timer");
 
     ALLEGRO_EVENT_QUEUE * queue = al_create_event_queue();
@@ -95,7 +95,6 @@ int main () {
     // mapa
     char map[maxMapHeight][maxMapWidth];    // matrix para armazenar o mapa
     Mapsize mapsize;
-    int mapNav = 0;
 
     // começa o jogo
     al_start_timer(timer);
@@ -103,30 +102,26 @@ int main () {
     int numMonsters = 0;
     int typeMonsters;
     int floorNumber = 0;
+    int mapNav = 0;
     bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
+
     while (gameStatus) {
-        // printf("mapNav: %d\n", mapNav);
-        // printf("bigRed: %d\n", bigRed);
         mapGenerator();
         getMap("./maps/map.txt", map, &mapsize);
-        switch (mapNav) {
-            case 1:
-                numMonsters = 4;
-                typeMonsters = bigRed;
-                mapNav = 0;
-                break;
-            case 2:
-                numMonsters = 2;
-                typeMonsters = Troll;
-                mapNav = 0;
-                break;
-            default:
-                // primeiro andar da dungeon
-                numMonsters = 0;
-                //typeMonsters = Troll;
-                mapNav = 0;
-                break;
+
+        srand(time(NULL));
+        numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 2);
+        if (floorNumber / 2 == 0) {
+            typeMonsters = rand() %  1;
         }
+        else {
+            typeMonsters = rand() % (floorNumber / 2);
+
+            if (typeMonsters > 1) {
+                typeMonsters = 0;
+            }
+        }
+
         gameStatus = gameMainLoop(
                 timer,
                 queue,
@@ -142,7 +137,17 @@ int main () {
                 &trollImg,
                 &bigRedImg
         );
-        floorNumber++;
+
+        switch (mapNav) {
+            case 1:
+                floorNumber++;
+                mapNav = 0;
+                break;
+            case 2:
+                mapNav = 0;
+                floorNumber--;
+                break;
+        }
     }
 
     // limpeza de recursos criados durante as inicializações
@@ -312,16 +317,13 @@ bool gameMainLoop (
                 }
 
                 // navegação entre mapas
-                if (player.x > maplim.rightBorder - 4) {
+                if (player.x > maplim.rightBorder - 4 ) {
                     printf("rightB\n");
                     *mapNav = 1;
                 }
-                else if (player.x < maplim.leftBorder + 4) {
+                else if ((player.x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
                     *mapNav = 2;
                 }
-                // else if (player.y > maplim.bottomBorder - 4) {
-                //     *mapNav = 1;
-                // }
 
                 redraw = true;
                 break;
@@ -569,6 +571,9 @@ bool gameMainLoop (
 
             // andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 65, 0, "Profundidade: %d", *floorNumber);
+
+            // quantidade de monstros no andar
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 75, 0, "Monstros: %d", numMonsters);
 
             al_flip_display();
 
