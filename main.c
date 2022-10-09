@@ -113,7 +113,7 @@ int main () {
         switch (mapNav) {
             case 1:
                 getMap("./maps/map1.txt", map, &mapsize);
-                numMonsters = 5;
+                numMonsters = 4;
                 typeMonsters = bigRed;
                 mapNav = 0;
                 break;
@@ -126,7 +126,7 @@ int main () {
                 break;
             default:
                 getMap("./maps/map1.txt", map, &mapsize);
-                numMonsters = 5;
+                numMonsters = 0;
                 typeMonsters = Troll;
                 mapNav = 0;
                 break;
@@ -241,17 +241,17 @@ bool gameMainLoop (
             case ALLEGRO_EVENT_TIMER:
 
                 // mov
-                if (mov.up) {
+                if (mov.up && player.y > maplim.topBorder) {
                     player.y -= player.speed;
                 }
-                if (mov.down) {
+                if (mov.down && player.y < maplim.bottomBorder) {
                     player.y += player.speed;
                 }
-                if (mov.left) {
+                if (mov.left && player.x > maplim.leftBorder) {
                     player.x -= player.speed;
                     player.direc = 1;
                 }
-                if (mov.right) {
+                if (mov.right && player.x < maplim.rightBorder) {
                     player.x += player.speed;
                     player.direc = 0;
                 }
