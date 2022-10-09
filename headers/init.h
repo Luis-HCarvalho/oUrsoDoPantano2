@@ -89,8 +89,9 @@ typedef struct {
 
 typedef struct {
     ALLEGRO_BITMAP * wall;
-    ALLEGRO_BITMAP * floor;
+    ALLEGRO_BITMAP * floor1;
     ALLEGRO_BITMAP * floor2;
+    ALLEGRO_BITMAP * floor3;
     ALLEGRO_BITMAP * trap;
 } Tiles;
 

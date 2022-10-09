@@ -82,14 +82,11 @@ int main () {
     bigRedImg.walk4 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk4.png");
 
     // carrega tiles para o mapa
-    Tiles map1Tiles;
-    map1Tiles.wall = al_load_bitmap("./assets/tiles/brickWall.png");
-    map1Tiles.floor = al_load_bitmap("./assets/tiles/tileTest.png");
-    map1Tiles.floor2 = al_load_bitmap("./assets/tiles/tileTest2.png");
-
-    must_init(map1Tiles.wall, "brickWall");
-    must_init(map1Tiles.floor, "tile1");
-    must_init(map1Tiles.floor2, "tile2");
+    Tiles mapTiles;
+    mapTiles.wall = al_load_bitmap("./assets/tiles/wall.png");
+    mapTiles.floor1 = al_load_bitmap("./assets/tiles/floor_1.png");
+    mapTiles.floor2 = al_load_bitmap("./assets/tiles/floor_2.png");
+    mapTiles.floor3 = al_load_bitmap("./assets/tiles/floor_3.png");
 
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -138,7 +135,7 @@ int main () {
                 &mapNav,
                 map,
                 mapsize,
-                &map1Tiles,
+                &mapTiles,
                 numMonsters,
                 &playerImg,
                 typeMonsters,
@@ -176,6 +173,11 @@ int main () {
     al_destroy_bitmap(bigRedImg.walk3);
     al_destroy_bitmap(bigRedImg.walk4);
 
+    al_destroy_bitmap(mapTiles.wall);
+    al_destroy_bitmap(mapTiles.floor1);
+    al_destroy_bitmap(mapTiles.floor2);
+    al_destroy_bitmap(mapTiles.floor3);
+
     return 0;
 }
 
@@ -201,8 +203,15 @@ bool gameMainLoop (
     Maplimits maplim;
     maplim.leftBorder = (displayWidth -  mapsize.width * sizeTile) / 2;
     maplim.rightBorder = displayWidth - maplim.leftBorder - 32;
-    maplim.topBorder = (mapsize.wall * 32 - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
+    maplim.topBorder = (mapsize.wall * sizeTile - 22)+ (displayHeight -  mapsize.height * sizeTile) / 2; //limite do chao 
     maplim.bottomBorder = displayHeight - ((displayHeight -  mapsize.height * sizeTile) / 2) - 36;
+
+    // determina uma ordem aleatória dos tiles de piso no mapa
+    int tilesOrder[maxMapHeight * maxMapWidth];
+    for (int i = 0; i < mapsize.height * mapsize.width; i++) {
+        srand(rand() + i + time(NULL));
+        tilesOrder[i] = rand() % 3 + 1;
+    }
 
     // player
     Player player;
@@ -413,14 +422,22 @@ bool gameMainLoop (
         if(redraw && al_is_event_queue_empty(queue)) {
 
             // construção do mapa (coloca os tiles no lugar)
-            for (int i = 0; i < mapsize.height; i++) {
-                for (int j = 0; j < mapsize.width; j++) {
-                    // desenha os tiles do mapa centralizados
-                    if (map[i][j] == 'w') {
-                        al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + (j * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + (i * sizeTile), 0);
-                    }
-                    else if (map[i][j] == 't') {
-                        al_draw_bitmap(mapTiles->floor, ((displayWidth -  mapsize.width * sizeTile) / 2) + (j * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + (i * sizeTile), 0);
+            for (int i = 0; i < mapsize.height * mapsize.width; i++) {
+                // (i / mapsize.width) == linha, (i % mapsize.width) == coluna
+                if (map[i / mapsize.width][i % mapsize.width] == 'w') {
+                    al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'f') {
+                    switch(tilesOrder[i]) {
+                        case 1:
+                            al_draw_bitmap(mapTiles->floor1, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                            break;
+                        case 2:
+                            al_draw_bitmap(mapTiles->floor1, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                            break;
+                        case 3:
+                            al_draw_bitmap(mapTiles->floor3, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                            break;
                     }
                 }
             }

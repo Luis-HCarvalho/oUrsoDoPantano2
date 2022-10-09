@@ -1,7 +1,10 @@
 /* legenda do mapa: 
     primeira linha -> valores de altura, largura e altura da parede nessa ordem
-    w -> parede
-    f -> chão
+    w = parede
+    f = piso
+    t -> spike trap
+
+
 */
 
 #include <string.h>
