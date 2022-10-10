@@ -70,9 +70,9 @@ Monster initMonster (int type, int id, Maplimits maplim);
 
 // tipos de monstros
 enum monstertype {
-    Slime = 0,
-    Troll,
-    bigRed
+    //OrcWarrior,
+    Troll = 0,
+    bigRed,
 };
 
 
@@ -88,6 +88,9 @@ typedef struct {
 } Sprites;
 
 typedef struct {
+    ALLEGRO_BITMAP * top;
+    ALLEGRO_BITMAP * topSide;
+    ALLEGRO_BITMAP * topCorner;
     ALLEGRO_BITMAP * wall;
     ALLEGRO_BITMAP * floor1;
     ALLEGRO_BITMAP * floor2;

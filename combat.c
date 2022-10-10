@@ -37,7 +37,7 @@ void monsterFollow (Monster * monster, Player * player, int attackCooldown) {
 }
 
 // lança magia
-void castSpell (Monster * monster, Player * player, int spell) {
+void castSpell (Monster * monster, Player * player, int spell, int * spellType) {
     if (player->mana > 0) {
         srand(time(NULL));
         int damage = rand() % player->damage + 1;
@@ -46,25 +46,29 @@ void castSpell (Monster * monster, Player * player, int spell) {
             case magicMissile:
                 if (player->mana > 5) {
                     player->mana -= 5;
-                monster->health -= damage;
+                    monster->health -= damage;
+                    *spellType = magicMissile;
                 }
                 break;
-            case fireBall:
+            case fireball:
                 if (player->mana > 10) {
                     player->mana -= 10;
-                monster->health -= damage;
+                    monster->health -= (damage + 10);
+                    *spellType = fireball;
                 }
                 break;
             case lightning:
                 if (player->mana > 15) {
                     player->mana -= 15;
-                monster->health -= damage;
+                    monster->health -= (damage + 15);
+                    *spellType = lightning;
                 }
                 break;
             case iceSpear:
-                if (player->mana > 20) {
-                    player->mana -= 20;
-                monster->health -= damage;
+                if (player->mana > 15) {
+                    player->mana -= 15;
+                    monster->health -= (damage + 15);
+                    *spellType = iceSpear;
                 }
                 break;
         } 

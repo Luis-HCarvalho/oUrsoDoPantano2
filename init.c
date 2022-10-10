@@ -32,10 +32,6 @@ Monster initMonster (int type, int id, Maplimits maplim) {
     monster.direc = rand() % 2;  // direção da movimentação
 
     switch (type) {
-        case Slime:
-            monster.rank = 5;
-            monster.attackCooldown = 10;
-            break;
         case Troll:
             monster.rank = 4;
             monster.attackCooldown = 10;

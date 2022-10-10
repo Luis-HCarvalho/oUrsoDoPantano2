@@ -1,4 +1,7 @@
-all: $(plataform) run clean
+all: clear $(plataform) run clean
+
+clear:
+	@clear
 
 linux:
 	@gcc -I ./headers/ *.c -o oUrsoDoPantano2.o $$(pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags) -std=c99	
