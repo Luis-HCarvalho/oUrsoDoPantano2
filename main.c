@@ -19,6 +19,7 @@ bool gameMainLoop (
     Tiles * mapTiles,
     int numMonsters,
     MagicImg * fireballImg,
+    MagicImg * iceshardImg,
     Sprites * playerImg,
     int typeMonsters,
     Sprites * trollImg,
@@ -69,6 +70,18 @@ int main () {
     fireballImg.img6 = al_load_bitmap("./assets/magic/fireball/fireball_6.png");
     fireballImg.img7 = al_load_bitmap("./assets/magic/fireball/fireball_7.png");
     fireballImg.img8 = al_load_bitmap("./assets/magic/fireball/fireball_8.png");
+
+    MagicImg iceshardImg;
+    iceshardImg.img1 = al_load_bitmap("./assets/magic/iceshard/iceshard_1.png");
+    iceshardImg.img2 = al_load_bitmap("./assets/magic/iceshard/iceshard_2.png");
+    iceshardImg.img3 = al_load_bitmap("./assets/magic/iceshard/iceshard_3.png");
+    iceshardImg.img4 = al_load_bitmap("./assets/magic/iceshard/iceshard_4.png");
+    iceshardImg.img5 = al_load_bitmap("./assets/magic/iceshard/iceshard_5.png");
+    iceshardImg.img6 = al_load_bitmap("./assets/magic/iceshard/iceshard_6.png");
+    iceshardImg.img7 = al_load_bitmap("./assets/magic/iceshard/iceshard_7.png");
+    iceshardImg.img8 = al_load_bitmap("./assets/magic/iceshard/iceshard_8.png");
+    iceshardImg.img9 = al_load_bitmap("./assets/magic/iceshard/iceshard_9.png");
+    iceshardImg.img10 = al_load_bitmap("./assets/magic/iceshard/iceshard_10.png");
 
     // carrega os sprites de movimentação de troll
     Sprites trollImg;
@@ -153,6 +166,7 @@ int main () {
                 &mapTiles,
                 numMonsters,
                 &fireballImg,
+                &iceshardImg,
                 &playerImg,
                 typeMonsters,
                 &trollImg,
@@ -190,6 +204,18 @@ int main () {
     al_destroy_bitmap(fireballImg.img6);
     al_destroy_bitmap(fireballImg.img7);
     al_destroy_bitmap(fireballImg.img8);
+
+
+    al_destroy_bitmap(iceshardImg.img1);
+    al_destroy_bitmap(iceshardImg.img2);
+    al_destroy_bitmap(iceshardImg.img3);
+    al_destroy_bitmap(iceshardImg.img4);
+    al_destroy_bitmap(iceshardImg.img5);
+    al_destroy_bitmap(iceshardImg.img6);
+    al_destroy_bitmap(iceshardImg.img7);
+    al_destroy_bitmap(iceshardImg.img8);
+    al_destroy_bitmap(iceshardImg.img9);
+    al_destroy_bitmap(iceshardImg.img10);
 
     al_destroy_bitmap(trollImg.idle1);
     al_destroy_bitmap(trollImg.idle2);
@@ -232,6 +258,7 @@ bool gameMainLoop (
     Tiles * mapTiles,
     int numMonsters,
     MagicImg * fireballImg,
+    MagicImg * iceshardImg,
     Sprites * playerImg,
     int typeMonsters,
     Sprites * trollImg,
@@ -437,7 +464,7 @@ bool gameMainLoop (
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, iceSpear, &spellType);
+                                    castSpell(&monsters[i], &player, iceshard, &spellType);
                                     break;
                                 }
                             }
@@ -515,7 +542,10 @@ bool gameMainLoop (
                         break;
                     case lightning:
                         break;
-                    case iceSpear:
+                    case iceshard:
+                        spellTrigger = true;
+                        spellDistance[0] = (monsterInRange.x - player.x) / 10;
+                        spellDistance[1] = (monsterInRange.y - player.y) / 10;
                         break;
                 }
                 spellType = 0;
@@ -555,8 +585,6 @@ bool gameMainLoop (
                     spellCounter--;
                     spellTrigger = false;
                 }
-                    
-                // }
             }
 
             // desenha a sprite player e monstros

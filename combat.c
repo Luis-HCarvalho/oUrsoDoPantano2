@@ -64,11 +64,11 @@ void castSpell (Monster * monster, Player * player, int spell, int * spellType) 
                     *spellType = lightning;
                 }
                 break;
-            case iceSpear:
+            case iceshard:
                 if (player->mana > 15) {
                     player->mana -= 15;
                     monster->health -= (damage + 15);
-                    *spellType = iceSpear;
+                    *spellType = iceshard;
                 }
                 break;
         } 

@@ -5,7 +5,7 @@ enum Spells {
     magicMissile = 1,
     fireball,
     lightning,
-    iceSpear,
+    iceshard,
 };
 
 typedef struct {
@@ -17,6 +17,8 @@ typedef struct {
     ALLEGRO_BITMAP * img6;
     ALLEGRO_BITMAP * img7;
     ALLEGRO_BITMAP * img8;
+    ALLEGRO_BITMAP * img9;
+    ALLEGRO_BITMAP * img10;
 } MagicImg;
 
 // entrou no campo de visão do monstro
