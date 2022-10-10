@@ -3,6 +3,8 @@
 #include "map.h"
 
 // substituir mapNav por floorNumber/profundidade e gerar monstros de acordo com a profundidade
+// (consertar) level do player resetando
+// implementar nivel de proeficiencia com uma escola de magia (level para as magias)
 // se o player morrer ele tem que provar seus conhecimentos para o ceifador para ganhar mais chance(vida)
 
 // loop principal
@@ -16,6 +18,7 @@ bool gameMainLoop (
     Mapsize mapsize,
     Tiles * mapTiles,
     int numMonsters,
+    MagicImg * fireballImg,
     Sprites * playerImg,
     int typeMonsters,
     Sprites * trollImg,
@@ -37,7 +40,7 @@ int main () {
     must_init(al_init_image_addon(), "imgageAddon");
     must_init(al_init_primitives_addon(), "primitives");
 
-    ALLEGRO_TIMER * timer = al_create_timer(1.0 / 45.0);
+    ALLEGRO_TIMER * timer = al_create_timer(1.0 / 45.0);  //45
     must_init(timer, "timer");
 
     ALLEGRO_EVENT_QUEUE * queue = al_create_event_queue();
@@ -55,6 +58,17 @@ int main () {
     playerImg.idle2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
     playerImg.idle3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
     playerImg.idle4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
+
+    // carrega os sprites da magia fireball
+    MagicImg fireballImg;
+    fireballImg.img1 = al_load_bitmap("./assets/magic/fireball/fireball_1.png");
+    fireballImg.img2 = al_load_bitmap("./assets/magic/fireball/fireball_2.png");
+    fireballImg.img3 = al_load_bitmap("./assets/magic/fireball/fireball_3.png");
+    fireballImg.img4 = al_load_bitmap("./assets/magic/fireball/fireball_4.png");
+    fireballImg.img5 = al_load_bitmap("./assets/magic/fireball/fireball_5.png");
+    fireballImg.img6 = al_load_bitmap("./assets/magic/fireball/fireball_6.png");
+    fireballImg.img7 = al_load_bitmap("./assets/magic/fireball/fireball_7.png");
+    fireballImg.img8 = al_load_bitmap("./assets/magic/fireball/fireball_8.png");
 
     // carrega os sprites de movimentação de troll
     Sprites trollImg;
@@ -106,8 +120,14 @@ int main () {
     bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
 
     while (gameStatus) {
-        mapGenerator();
-        getMap("./maps/map.txt", map, &mapsize);
+        if (floorNumber == -1) {
+            // mapa fixo para o player comprar itens, acessar baus, etc
+            //getMap("./maps/map.txt", map, &mapsize);
+        }
+        else {
+            mapGenerator();
+            getMap("./maps/map.txt", map, &mapsize);
+        }
 
         srand(time(NULL));
         numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 2);
@@ -132,6 +152,7 @@ int main () {
                 mapsize,
                 &mapTiles,
                 numMonsters,
+                &fireballImg,
                 &playerImg,
                 typeMonsters,
                 &trollImg,
@@ -160,6 +181,15 @@ int main () {
     al_destroy_bitmap(playerImg.idle2);
     al_destroy_bitmap(playerImg.idle3);
     al_destroy_bitmap(playerImg.idle4);
+
+    al_destroy_bitmap(fireballImg.img1);
+    al_destroy_bitmap(fireballImg.img2);
+    al_destroy_bitmap(fireballImg.img3);
+    al_destroy_bitmap(fireballImg.img4);
+    al_destroy_bitmap(fireballImg.img5);
+    al_destroy_bitmap(fireballImg.img6);
+    al_destroy_bitmap(fireballImg.img7);
+    al_destroy_bitmap(fireballImg.img8);
 
     al_destroy_bitmap(trollImg.idle1);
     al_destroy_bitmap(trollImg.idle2);
@@ -201,6 +231,7 @@ bool gameMainLoop (
     Mapsize mapsize,
     Tiles * mapTiles,
     int numMonsters,
+    MagicImg * fireballImg,
     Sprites * playerImg,
     int typeMonsters,
     Sprites * trollImg,
@@ -246,7 +277,10 @@ bool gameMainLoop (
     bool exit = false;
     bool redraw = true;
     bool combatRange = false;
-    bool spell = false;
+    bool spellTrigger = false;
+    int spellDistance[2];  // (x, y)
+    int spellCounter = 0;
+    int spellType = 0;
     int animationTimer = 0;    // animação do player e monstros
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
     int respawnTimer = 0;
@@ -318,7 +352,6 @@ bool gameMainLoop (
 
                 // navegação entre mapas
                 if (player.x > maplim.rightBorder - 4 ) {
-                    printf("rightB\n");
                     *mapNav = 1;
                 }
                 else if ((player.x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
@@ -367,12 +400,10 @@ bool gameMainLoop (
 
                     case ALLEGRO_KEY_Q:
                         if (combatRange) {
-                            spell = true;
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, magicMissile);
-                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    castSpell(&monsters[i], &player, magicMissile, &spellType);
                                     break;
                                 }
                             }
@@ -380,12 +411,11 @@ bool gameMainLoop (
                         break;
                     case ALLEGRO_KEY_W:
                         if (combatRange) {
-                            spell = true;
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, fireBall);
-                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    castSpell(&monsters[i], &player, fireball, &spellType);
+                                    spellCounter = 0;
                                     break;
                                 }
                             }
@@ -393,12 +423,10 @@ bool gameMainLoop (
                         break;
                     case ALLEGRO_KEY_E:
                         if (combatRange) {
-                            spell = true;
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, lightning);
-                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    castSpell(&monsters[i], &player, lightning, &spellType);
                                     break;
                                 }
                             }
@@ -406,12 +434,10 @@ bool gameMainLoop (
                         break;
                     case ALLEGRO_KEY_R:
                         if (combatRange) {
-                            spell = true;
 
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, iceSpear);
-                                    printf("%dvida: %d\n", i,monsters[i].health);
+                                    castSpell(&monsters[i], &player, iceSpear, &spellType);
                                     break;
                                 }
                             }
@@ -476,9 +502,61 @@ bool gameMainLoop (
                 }
             }
 
-            if (spell && player.mana > 0) {
-                al_draw_line(player.x + 16, player.y + 16, monsterInRange.x + 16, monsterInRange.y + 16, al_map_rgb_f(255, 255, 255), 2);
-                spell = false;
+            // magias
+            if (spellType && player.mana > 0) {
+                switch (spellType) {
+                    case magicMissile:
+                        al_draw_line(player.x + 16, player.y + 16, monsterInRange.x + 16, monsterInRange.y + 16, al_map_rgb_f(255, 255, 255), 2);
+                        break;
+                    case fireball:
+                        spellTrigger = true;
+                        spellDistance[0] = (monsterInRange.x - player.x) / 8;
+                        spellDistance[1] = (monsterInRange.y - player.y) / 8;
+                        break;
+                    case lightning:
+                        break;
+                    case iceSpear:
+                        break;
+                }
+                spellType = 0;
+            }
+            
+            if (spellTrigger) {
+                if (spellCounter < 2) {
+                    al_draw_bitmap(fireballImg->img1, player.x + 16, player.y + 16, 0);
+                    spellCounter++;
+                }
+                else if (spellCounter < 4) {
+                    al_draw_bitmap(fireballImg->img2, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                    spellCounter++;
+                }
+                else if (spellCounter < 6) {
+                    al_draw_bitmap(fireballImg->img3, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                    spellCounter++;
+                }
+                else if (spellCounter < 8) {
+                    al_draw_bitmap(fireballImg->img4, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                    spellCounter++;
+                }
+                else if (spellCounter < 10) {
+                    al_draw_bitmap(fireballImg->img5, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                    spellCounter++;
+                }
+                else if (spellCounter < 12) {
+                    al_draw_bitmap(fireballImg->img6, (spellDistance[0] * spellCounter + player.x +16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                    spellCounter++;
+                }
+                else if (spellCounter < 14) {
+                    al_draw_bitmap(fireballImg->img7, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                    spellCounter++;
+                }
+                else {
+                    al_draw_bitmap(fireballImg->img8, monsterInRange.x + 16, monsterInRange.y + 16, player.direc);
+                    spellCounter--;
+                    spellTrigger = false;
+                }
+                    
+                // }
             }
 
             // desenha a sprite player e monstros
@@ -586,7 +664,6 @@ bool gameMainLoop (
     else {
         return true;
     }
-    printf("fim do loop principal do jogo\n");
 }
 
 // recebe um monstro e o num da sprite para ser desenhada na tela

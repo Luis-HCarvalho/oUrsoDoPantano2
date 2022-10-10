@@ -70,8 +70,9 @@ Monster initMonster (int type, int id, Maplimits maplim);
 
 // tipos de monstros
 enum monstertype {
+    //OrcWarrior,
     Troll = 0,
-    bigRed
+    bigRed,
 };
 
 
