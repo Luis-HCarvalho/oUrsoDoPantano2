@@ -24,6 +24,7 @@ bool gameMainLoop (
     int numMonsters,
     AllMagics * allMagics,
     Sprites * playerImg,
+    Player * player,
     int typeMonsters,
     Sprites * trollImg,
     Sprites * bigRedImg
@@ -166,6 +167,13 @@ int main () {
     int floorNumber = 0;
     int mapNav = 0;
     bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
+    int mapLimLeft;
+    int mapLimRight;
+    bool goingDown = true;
+
+    // init player
+    Player player;
+    initPlayer(&player);
 
     while (gameStatus) {
         if (floorNumber == -1) {
@@ -176,6 +184,17 @@ int main () {
             mapGenerator();
             getMap("./maps/map.txt", map, &mapsize);
         }
+
+        // posição do player a subir ou descer os andares da dungeon
+        mapLimLeft = (displayWidth -  mapsize.width * sizeTile) / 2 + 32;
+        mapLimRight = displayWidth - ((displayWidth -  mapsize.width * sizeTile) / 2) - (sizeTile * 2) - 32;
+        if (goingDown) {
+            player.x = mapLimLeft;
+        }
+        else {
+            player.x = mapLimRight;
+        }
+        player.y = displayHeight / 2;
 
         srand(time(NULL));
         numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 2);
@@ -204,6 +223,7 @@ int main () {
                 numMonsters,
                 &allMagics,
                 &playerImg,
+                &player,
                 typeMonsters,
                 &trollImg,
                 &bigRedImg
@@ -213,12 +233,15 @@ int main () {
             case 1:
                 floorNumber++;
                 mapNav = 0;
+                goingDown = true;
                 break;
             case 2:
                 mapNav = 0;
                 floorNumber--;
+                goingDown = false;
                 break;
         }
+    
     }
 
     // limpeza de recursos criados durante as inicializações
@@ -300,6 +323,7 @@ bool gameMainLoop (
     // MagicImg * iceshardImg,
     AllMagics * allMagics,
     Sprites * playerImg,
+    Player * player,
     int typeMonsters,
     Sprites * trollImg,
     Sprites * bigRedImg
@@ -320,11 +344,7 @@ bool gameMainLoop (
         srand(rand() + i + time(NULL));
         tilesOrder[i] = rand() % 3 + 1;
     }
-
-    // player
-    Player player;
-    initPlayer(&player);
-
+    
     PlayerMov mov;
     mov.up = 0;
     mov.down = 0;
@@ -344,7 +364,6 @@ bool gameMainLoop (
     bool exit = false;
     bool redraw = true;
     bool combatRange = false;
-    //bool spellTrigger = false;
 
     float borderPos[2] = {(displayWidth - ((displayWidth * 6) / 7)), displayHeight - 84};    // {x, y}
     float spellKeysPos[2] = {borderPos[0] + 6.5, borderPos[1] + 25};    // {x, y}
@@ -365,21 +384,20 @@ bool gameMainLoop (
         switch(event.type) {
             // logica do jogo
             case ALLEGRO_EVENT_TIMER:
-
                 // mov
-                if (mov.up && player.y > maplim.topBorder) {
-                    player.y -= player.speed;
+                if (mov.up && player->y > maplim.topBorder) {
+                    player->y -= player->speed;
                 }
-                if (mov.down && player.y < maplim.bottomBorder) {
-                    player.y += player.speed;
+                if (mov.down && player->y < maplim.bottomBorder) {
+                    player->y += player->speed;
                 }
-                if (mov.left && player.x > maplim.leftBorder) {
-                    player.x -= player.speed;
-                    player.direc = 1;
+                if (mov.left && player->x > maplim.leftBorder) {
+                    player->x -= player->speed;
+                    player->direc = 1;
                 }
-                if (mov.right && player.x < maplim.rightBorder) {
-                    player.x += player.speed;
-                    player.direc = 0;
+                if (mov.right && player->x < maplim.rightBorder) {
+                    player->x += player->speed;
+                    player->direc = 0;
                 }
 
                 // cooldown ataques dos monstros e recuperação de mana
@@ -391,13 +409,13 @@ bool gameMainLoop (
                 }
 
                 // recuparação de mana
-                if (player.mana < 50 && attackCooldown >= 10 && attackCooldown % 10 == 0) {
-                    player.mana++;
+                if (player->mana < 50 && attackCooldown >= 10 && attackCooldown % 10 == 0) {
+                    player->mana++;
                 }
                 
                 // determina se um monstro esta dentro do range de combate do player
                 for (int i = 0; i < numMonsters; i++) {
-                    if ((combatRange = monsterAngry(&monsters[i], player))) {
+                    if ((combatRange = monsterAngry(&monsters[i], *player))) {
                         monsterInRange = monsters[i];
                         break;
                     }
@@ -409,7 +427,7 @@ bool gameMainLoop (
 
                 // determina se um monstro deve seguir o player
                 for (int i = 0; i < numMonsters; i++) {
-                    monsterFollow(&monsters[i], &player, attackCooldown);
+                    monsterFollow(&monsters[i], &(*player), attackCooldown);
                 }
 
                 // respawn de monstros
@@ -424,10 +442,10 @@ bool gameMainLoop (
                 }
 
                 // navegação entre mapas
-                if (player.x > maplim.rightBorder - 4 ) {
+                if (player->x > maplim.rightBorder - 4 ) {
                     *mapNav = 1;
                 }
-                else if ((player.x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
+                else if ((player->x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
                     *mapNav = 2;
                 }
 
@@ -475,7 +493,7 @@ bool gameMainLoop (
                         if (combatRange) {
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, magicMissile, &spellType);
+                                    castSpell(&monsters[i], &(*player), magicMissile, &spellType);
                                     spellCounter = 0;
                                     break;
                                 }
@@ -486,7 +504,7 @@ bool gameMainLoop (
                         if (combatRange) {
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, fireball, &spellType);
+                                    castSpell(&monsters[i], &(*player), fireball, &spellType);
                                     spellCounter = 0;
                                     break;
                                 }
@@ -497,7 +515,7 @@ bool gameMainLoop (
                         if (combatRange) {
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, lightning, &spellType);
+                                    castSpell(&monsters[i], &(*player), lightning, &spellType);
                                     spellCounter = 0;
                                     break;
                                 }
@@ -508,7 +526,7 @@ bool gameMainLoop (
                         if (combatRange) {
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
-                                    castSpell(&monsters[i], &player, iceshard, &spellType);
+                                    castSpell(&monsters[i], &(*player), iceshard, &spellType);
                                     spellCounter = 0;
                                     break;
                                 }
@@ -574,23 +592,23 @@ bool gameMainLoop (
             }
 
             // magias
-            if (spellType && player.mana > 0) {
+            if (spellType && player->mana > 0) {
                 switch (spellType) {
                     case magicMissile:
-                        spellDistance[0] = (monsterInRange.x - player.x) / 5;
-                        spellDistance[1] = (monsterInRange.y - player.y) / 5;
+                        spellDistance[0] = (monsterInRange.x - player->x) / 5;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 5;
                         break;
                     case fireball:
-                        spellDistance[0] = (monsterInRange.x - player.x) / 8;
-                        spellDistance[1] = (monsterInRange.y - player.y) / 8;
+                        spellDistance[0] = (monsterInRange.x - player->x) / 8;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 8;
                         break;
                     case lightning:
-                        spellDistance[0] = (monsterInRange.x - player.x) / 7;
-                        spellDistance[1] = (monsterInRange.y - player.y) / 7;
+                        spellDistance[0] = (monsterInRange.x - player->x) / 7;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 7;
                         break;
                     case iceshard:
-                        spellDistance[0] = (monsterInRange.x - player.x) / 8;
-                        spellDistance[1] = (monsterInRange.y - player.y) / 8;
+                        spellDistance[0] = (monsterInRange.x - player->x) / 8;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 8;
                         break;
                 }
                 spellCasted = spellType;
@@ -599,16 +617,16 @@ bool gameMainLoop (
             
             switch (spellCasted) {
                 case magicMissile:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[0], &spellCounter, spellDistance, player, monsterInRange);
+                    drawSpellAnim(&spellCasted, &allMagics->spell[0], &spellCounter, spellDistance, *player, monsterInRange);
                     break;
                 case fireball:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[1], &spellCounter, spellDistance, player, monsterInRange);
+                    drawSpellAnim(&spellCasted, &allMagics->spell[1], &spellCounter, spellDistance, *player, monsterInRange);
                     break;
                 case lightning:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[2], &spellCounter, spellDistance, player, monsterInRange);
+                    drawSpellAnim(&spellCasted, &allMagics->spell[2], &spellCounter, spellDistance, *player, monsterInRange);
                     break;
                 case iceshard:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[3], &spellCounter, spellDistance, player, monsterInRange);
+                    drawSpellAnim(&spellCasted, &allMagics->spell[3], &spellCounter, spellDistance, *player, monsterInRange);
                     break;
             }
 
@@ -660,7 +678,7 @@ bool gameMainLoop (
 
             // desenha a sprite player e monstros
             if (animationTimer < 20) {
-                al_draw_bitmap(playerImg->idle1, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->idle1, player->x, player->y, player->direc);
                 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
@@ -674,7 +692,7 @@ bool gameMainLoop (
                 animationTimer++;
             }
             else if (animationTimer < 40) {
-                al_draw_bitmap(playerImg->idle2, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->idle2, player->x, player->y, player->direc);
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
@@ -688,7 +706,7 @@ bool gameMainLoop (
                 animationTimer++;
             }
             else if (animationTimer < 60) {
-                al_draw_bitmap(playerImg->idle3, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->idle3, player->x, player->y, player->direc);
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
@@ -702,7 +720,7 @@ bool gameMainLoop (
                 animationTimer++;
             }
             else {
-                al_draw_bitmap(playerImg->idle4, player.x, player.y, player.direc);
+                al_draw_bitmap(playerImg->idle4, player->x, player->y, player->direc);
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Troll) {
@@ -730,21 +748,21 @@ bool gameMainLoop (
             }
 
             // hud player
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 20, 5, 0, "LEVEL %d", player.level);
-            al_draw_textf(font, al_map_rgb(255, 255, 255), 90, 5, 0, "XP %d", player.xp);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 20, 5, 0, "LEVEL %d", player->level);
+            al_draw_textf(font, al_map_rgb(255, 255, 255), 90, 5, 0, "XP %d", player->xp);
 
             // barra de vida
-            if (player.health < 0) {
+            if (player->health < 0) {
                 exit = true;
             }
             else {
-                al_draw_textf(font, al_map_rgb(255, 255, 255), (player.health + 30), 20, 0, "%d", player.health);
-                al_draw_filled_rectangle(20, 20, (player.health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
+                al_draw_textf(font, al_map_rgb(255, 255, 255), (player->health + 30), 20, 0, "%d", player->health);
+                al_draw_filled_rectangle(20, 20, (player->health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
             }
 
             //barra de mana
-            al_draw_textf(font, al_map_rgb(255, 255, 255), (player.mana + 30), 35, 0, "%d", player.mana);
-            al_draw_filled_rectangle(20, 35, (player.mana + 20), 42, al_map_rgba_f(0, 0, 255, 0.5));
+            al_draw_textf(font, al_map_rgb(255, 255, 255), (player->mana + 30), 35, 0, "%d", player->mana);
+            al_draw_filled_rectangle(20, 35, (player->mana + 20), 42, al_map_rgba_f(0, 0, 255, 0.5));
 
             // andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 65, 0, "Profundidade: %d", *floorNumber);
@@ -757,7 +775,7 @@ bool gameMainLoop (
             redraw = false;
         }
     }
-    if (player.health <= 0 || exit) {
+    if (player->health <= 0 || exit) {
         return false;
     }
     else {
