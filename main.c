@@ -1,6 +1,7 @@
 #include "init.h"
 #include "combat.h"
 #include "map.h"
+#include "draw.h"
 
 // substituir mapNav por floorNumber/profundidade e gerar monstros de acordo com a profundidade
 // (consertar) level do player resetando
@@ -21,8 +22,6 @@ bool gameMainLoop (
     Mapsize mapsize,
     Tiles * mapTiles,
     int numMonsters,
-    // MagicImg * fireballImg,
-    // MagicImg * iceshardImg,
     AllMagics * allMagics,
     Sprites * playerImg,
     int typeMonsters,
@@ -203,8 +202,6 @@ int main () {
                 mapsize,
                 &mapTiles,
                 numMonsters,
-                // &fireballImg,
-                // &iceshardImg,
                 &allMagics,
                 &playerImg,
                 typeMonsters,
@@ -476,7 +473,6 @@ bool gameMainLoop (
 
                     case ALLEGRO_KEY_Q:
                         if (combatRange) {
-
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, magicMissile, &spellType);
@@ -488,7 +484,6 @@ bool gameMainLoop (
                         break;
                     case ALLEGRO_KEY_W:
                         if (combatRange) {
-
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, fireball, &spellType);
@@ -500,7 +495,6 @@ bool gameMainLoop (
                         break;
                     case ALLEGRO_KEY_E:
                         if (combatRange) {
-
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, lightning, &spellType);
@@ -512,7 +506,6 @@ bool gameMainLoop (
                         break;
                     case ALLEGRO_KEY_R:
                         if (combatRange) {
-
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, iceshard, &spellType);
@@ -535,7 +528,6 @@ bool gameMainLoop (
             break;
 
         if(redraw && al_is_event_queue_empty(queue)) {
-
             // construção do mapa (coloca os tiles no lugar)
             for (int i = 0; i < mapsize.height * mapsize.width; i++) {
                 // (i / mapsize.width) == linha, (i % mapsize.width) == coluna
@@ -607,128 +599,16 @@ bool gameMainLoop (
             
             switch (spellCasted) {
                 case magicMissile:
-                    if (spellCounter < 2) {
-                        al_draw_bitmap(allMagics->spell[0].img[0], player.x, player.y, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 4) {
-                        al_draw_bitmap(allMagics->spell[0].img[1], (spellDistance[0] * spellCounter + player.x), (spellDistance[1] * spellCounter + player.y), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 6) {
-                        al_draw_bitmap(allMagics->spell[0].img[2], (spellDistance[0] * spellCounter + player.x), (spellDistance[1] * spellCounter + player.y), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 8) {
-                        al_draw_bitmap(allMagics->spell[0].img[3], (spellDistance[0] * spellCounter + player.x), (spellDistance[1] * spellCounter + player.y), player.direc);
-                        spellCounter++;
-                    }
-                    else {
-                        al_draw_bitmap(allMagics->spell[0].img[4], monsterInRange.x, monsterInRange.y, player.direc);
-                        spellCounter--;
-                        spellCasted = 0;
-                    }
+                    drawSpellAnim(&spellCasted, &allMagics->spell[0], &spellCounter, spellDistance, player, monsterInRange);
                     break;
                 case fireball:
-                    if (spellCounter < 2) {
-                        al_draw_bitmap(allMagics->spell[1].img[0], player.x + 16, player.y + 16, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 4) {
-                        al_draw_bitmap(allMagics->spell[1].img[1], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 6) {
-                        al_draw_bitmap(allMagics->spell[1].img[2], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 8) {
-                        al_draw_bitmap(allMagics->spell[1].img[3], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 10) {
-                        al_draw_bitmap(allMagics->spell[1].img[4], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 12) {
-                        al_draw_bitmap(allMagics->spell[1].img[5], (spellDistance[0] * spellCounter + player.x +16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 14) {
-                        al_draw_bitmap(allMagics->spell[1].img[6], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else {
-                        al_draw_bitmap(allMagics->spell[1].img[7], monsterInRange.x + 16, monsterInRange.y + 16, player.direc);
-                        spellCounter--;
-                        spellCasted = 0;
-                    }
+                    drawSpellAnim(&spellCasted, &allMagics->spell[1], &spellCounter, spellDistance, player, monsterInRange);
                     break;
                 case lightning:
-                    if (spellCounter < 2) {
-                        al_draw_bitmap(allMagics->spell[2].img[0], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 4) {
-                        al_draw_bitmap(allMagics->spell[2].img[1], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 6) {
-                        al_draw_bitmap(allMagics->spell[2].img[2], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 8) {
-                        al_draw_bitmap(allMagics->spell[2].img[3], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 10) {
-                        al_draw_bitmap(allMagics->spell[2].img[4], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 12) {
-                        al_draw_bitmap(allMagics->spell[2].img[5], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter++;
-                    }
-                    else {
-                        al_draw_bitmap(allMagics->spell[2].img[6], monsterInRange.x, monsterInRange.y, 0);
-                        spellCounter--;
-                        spellCasted = 0;
-                    }
+                    drawSpellAnim(&spellCasted, &allMagics->spell[2], &spellCounter, spellDistance, player, monsterInRange);
                     break;
                 case iceshard:
-                    if (spellCounter < 2) {
-                        al_draw_bitmap(allMagics->spell[3].img[0], player.x + 16, player.y + 16, 0);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 4) {
-                        al_draw_bitmap(allMagics->spell[3].img[1], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 6) {
-                        al_draw_bitmap(allMagics->spell[3].img[2], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 8) {
-                        al_draw_bitmap(allMagics->spell[3].img[3], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 10) {
-                        al_draw_bitmap(allMagics->spell[3].img[4], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 12) {
-                        al_draw_bitmap(allMagics->spell[3].img[5], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else if (spellCounter < 14) {
-                        al_draw_bitmap(allMagics->spell[3].img[6], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                        spellCounter++;
-                    }
-                    else {
-                        al_draw_bitmap(allMagics->spell[3].img[7], monsterInRange.x + 16, monsterInRange.y + 16, player.direc);
-                        spellCounter--;
-                        spellCasted = 0;
-                    }
+                    drawSpellAnim(&spellCasted, &allMagics->spell[3], &spellCounter, spellDistance, player, monsterInRange);
                     break;
             }
 
