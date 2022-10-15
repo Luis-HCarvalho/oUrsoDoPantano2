@@ -98,4 +98,16 @@ typedef struct {
     ALLEGRO_BITMAP * trap;
 } Tiles;
 
+typedef struct {
+    ALLEGRO_BITMAP * Q;
+    ALLEGRO_BITMAP * W;
+    ALLEGRO_BITMAP * E;
+    ALLEGRO_BITMAP * R;
+    ALLEGRO_BITMAP * ARROWUP;
+    ALLEGRO_BITMAP * ARROWDOWN;
+    ALLEGRO_BITMAP * ARROWLEFT;
+    ALLEGRO_BITMAP * ARROWRIGHT;
+} Keys;
+
+
 #endif // INIT_H

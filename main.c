@@ -6,20 +6,24 @@
 // (consertar) level do player resetando
 // implementar nivel de proeficiencia com uma escola de magia (level para as magias)
 // se o player morrer ele tem que provar seus conhecimentos para o ceifador para ganhar mais chance(vida)
+// fazer um modulo com funções para logica de desenho na tela
 
 // loop principal
 bool gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
+    Keys * keys,
+    ALLEGRO_BITMAP ** spellBorder,
     int * mapNav,
     int * floorNumber,
     char map[][maxMapWidth],
     Mapsize mapsize,
     Tiles * mapTiles,
     int numMonsters,
-    MagicImg * fireballImg,
-    MagicImg * iceshardImg,
+    // MagicImg * fireballImg,
+    // MagicImg * iceshardImg,
+    AllMagics * allMagics,
     Sprites * playerImg,
     int typeMonsters,
     Sprites * trollImg,
@@ -34,7 +38,6 @@ void monsterAnimation (
 );
 
 int main () {
-
     // inicializações 
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
@@ -60,28 +63,61 @@ int main () {
     playerImg.idle3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
     playerImg.idle4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
 
-    // carrega os sprites da magia fireball
+    // carrega sprite keys do teclado
+    Keys keys;
+    keys.Q = al_load_bitmap("./assets/keyboardKeys/Q.png");
+    keys.W = al_load_bitmap("./assets/keyboardKeys/W.png");
+    keys.E = al_load_bitmap("./assets/keyboardKeys/E.png");
+    keys.R = al_load_bitmap("./assets/keyboardKeys/R.png");
+    keys.ARROWUP = al_load_bitmap("./assets/keyboardKeys/ARROWUP.png");
+    keys.ARROWDOWN = al_load_bitmap("./assets/keyboardKeys/ARROWDOWN.png");
+    keys.ARROWLEFT = al_load_bitmap("./assets/keyboardKeys/ARROWLEFT.png");
+    keys.ARROWRIGHT = al_load_bitmap("./assets/keyboardKeys/ARROWRIGHT.png");
+
+    ALLEGRO_BITMAP * spellBorder = al_load_bitmap("./assets/borders/spellBorder.png");
+
+    // carrega os sprites de magias
+    MagicImg magicMissileImg;
+    magicMissileImg.img[0] = al_load_bitmap("./assets/magic/magicMissile/magicMissile_1.png");
+    magicMissileImg.img[1] = al_load_bitmap("./assets/magic/magicMissile/magicMissile_2.png");
+    magicMissileImg.img[2] = al_load_bitmap("./assets/magic/magicMissile/magicMissile_3.png");
+    magicMissileImg.img[3] = al_load_bitmap("./assets/magic/magicMissile/magicMissile_4.png");
+    magicMissileImg.img[4] = al_load_bitmap("./assets/magic/magicMissile/magicMissile_5.png");
+
     MagicImg fireballImg;
-    fireballImg.img1 = al_load_bitmap("./assets/magic/fireball/fireball_1.png");
-    fireballImg.img2 = al_load_bitmap("./assets/magic/fireball/fireball_2.png");
-    fireballImg.img3 = al_load_bitmap("./assets/magic/fireball/fireball_3.png");
-    fireballImg.img4 = al_load_bitmap("./assets/magic/fireball/fireball_4.png");
-    fireballImg.img5 = al_load_bitmap("./assets/magic/fireball/fireball_5.png");
-    fireballImg.img6 = al_load_bitmap("./assets/magic/fireball/fireball_6.png");
-    fireballImg.img7 = al_load_bitmap("./assets/magic/fireball/fireball_7.png");
-    fireballImg.img8 = al_load_bitmap("./assets/magic/fireball/fireball_8.png");
+    fireballImg.img[0] = al_load_bitmap("./assets/magic/fireball/fireball_1.png");
+    fireballImg.img[1] = al_load_bitmap("./assets/magic/fireball/fireball_2.png");
+    fireballImg.img[2] = al_load_bitmap("./assets/magic/fireball/fireball_3.png");
+    fireballImg.img[3] = al_load_bitmap("./assets/magic/fireball/fireball_4.png");
+    fireballImg.img[4] = al_load_bitmap("./assets/magic/fireball/fireball_5.png");
+    fireballImg.img[5] = al_load_bitmap("./assets/magic/fireball/fireball_6.png");
+    fireballImg.img[6] = al_load_bitmap("./assets/magic/fireball/fireball_7.png");
+    fireballImg.img[7] = al_load_bitmap("./assets/magic/fireball/fireball_8.png");
+
+    MagicImg lightningImg;
+    lightningImg.img[0] = al_load_bitmap("./assets/magic/lightning/lightning_1.png");
+    lightningImg.img[1] = al_load_bitmap("./assets/magic/lightning/lightning_2.png");
+    lightningImg.img[2] = al_load_bitmap("./assets/magic/lightning/lightning_3.png");
+    lightningImg.img[3] = al_load_bitmap("./assets/magic/lightning/lightning_4.png");
+    lightningImg.img[4] = al_load_bitmap("./assets/magic/lightning/lightning_5.png");
+    lightningImg.img[5] = al_load_bitmap("./assets/magic/lightning/lightning_6.png");
+    lightningImg.img[6] = al_load_bitmap("./assets/magic/lightning/lightning_7.png");
 
     MagicImg iceshardImg;
-    iceshardImg.img1 = al_load_bitmap("./assets/magic/iceshard/iceshard_1.png");
-    iceshardImg.img2 = al_load_bitmap("./assets/magic/iceshard/iceshard_2.png");
-    iceshardImg.img3 = al_load_bitmap("./assets/magic/iceshard/iceshard_3.png");
-    iceshardImg.img4 = al_load_bitmap("./assets/magic/iceshard/iceshard_4.png");
-    iceshardImg.img5 = al_load_bitmap("./assets/magic/iceshard/iceshard_5.png");
-    iceshardImg.img6 = al_load_bitmap("./assets/magic/iceshard/iceshard_6.png");
-    iceshardImg.img7 = al_load_bitmap("./assets/magic/iceshard/iceshard_7.png");
-    iceshardImg.img8 = al_load_bitmap("./assets/magic/iceshard/iceshard_8.png");
-    iceshardImg.img9 = al_load_bitmap("./assets/magic/iceshard/iceshard_9.png");
-    iceshardImg.img10 = al_load_bitmap("./assets/magic/iceshard/iceshard_10.png");
+    iceshardImg.img[0] = al_load_bitmap("./assets/magic/iceshard/iceshard_1.png");
+    iceshardImg.img[1] = al_load_bitmap("./assets/magic/iceshard/iceshard_2.png");
+    iceshardImg.img[2] = al_load_bitmap("./assets/magic/iceshard/iceshard_3.png");
+    iceshardImg.img[3] = al_load_bitmap("./assets/magic/iceshard/iceshard_4.png");
+    iceshardImg.img[4] = al_load_bitmap("./assets/magic/iceshard/iceshard_5.png");
+    iceshardImg.img[5] = al_load_bitmap("./assets/magic/iceshard/iceshard_6.png");
+    iceshardImg.img[6] = al_load_bitmap("./assets/magic/iceshard/iceshard_7.png");
+    iceshardImg.img[7] = al_load_bitmap("./assets/magic/iceshard/iceshard_8.png");
+
+    AllMagics allMagics;
+    allMagics.spell[0] = magicMissileImg;
+    allMagics.spell[1] = fireballImg;
+    allMagics.spell[2] = lightningImg;
+    allMagics.spell[3] = iceshardImg;
 
     // carrega os sprites de movimentação de troll
     Sprites trollImg;
@@ -159,14 +195,17 @@ int main () {
                 timer,
                 queue,
                 font,
+                &keys,
+                &spellBorder,
                 &mapNav,
                 &floorNumber,
                 map,
                 mapsize,
                 &mapTiles,
                 numMonsters,
-                &fireballImg,
-                &iceshardImg,
+                // &fireballImg,
+                // &iceshardImg,
+                &allMagics,
                 &playerImg,
                 typeMonsters,
                 &trollImg,
@@ -196,26 +235,27 @@ int main () {
     al_destroy_bitmap(playerImg.idle3);
     al_destroy_bitmap(playerImg.idle4);
 
-    al_destroy_bitmap(fireballImg.img1);
-    al_destroy_bitmap(fireballImg.img2);
-    al_destroy_bitmap(fireballImg.img3);
-    al_destroy_bitmap(fireballImg.img4);
-    al_destroy_bitmap(fireballImg.img5);
-    al_destroy_bitmap(fireballImg.img6);
-    al_destroy_bitmap(fireballImg.img7);
-    al_destroy_bitmap(fireballImg.img8);
+    al_destroy_bitmap(keys.Q);
+    al_destroy_bitmap(keys.W);
+    al_destroy_bitmap(keys.E);
+    al_destroy_bitmap(keys.R);
+    al_destroy_bitmap(keys.ARROWUP);
+    al_destroy_bitmap(keys.ARROWDOWN);
+    al_destroy_bitmap(keys.ARROWLEFT);
+    al_destroy_bitmap(keys.ARROWRIGHT);
 
+    al_destroy_bitmap(spellBorder);
 
-    al_destroy_bitmap(iceshardImg.img1);
-    al_destroy_bitmap(iceshardImg.img2);
-    al_destroy_bitmap(iceshardImg.img3);
-    al_destroy_bitmap(iceshardImg.img4);
-    al_destroy_bitmap(iceshardImg.img5);
-    al_destroy_bitmap(iceshardImg.img6);
-    al_destroy_bitmap(iceshardImg.img7);
-    al_destroy_bitmap(iceshardImg.img8);
-    al_destroy_bitmap(iceshardImg.img9);
-    al_destroy_bitmap(iceshardImg.img10);
+    for (int i = 0; i < numMagicImgs; i++) {
+        al_destroy_bitmap(fireballImg.img[i]);
+        al_destroy_bitmap(iceshardImg.img[i]);
+        if (i < 7) {
+            al_destroy_bitmap(lightningImg.img[i]);
+        }
+        if (i < 5) {
+            al_destroy_bitmap(magicMissileImg.img[i]);
+        }
+    }
 
     al_destroy_bitmap(trollImg.idle1);
     al_destroy_bitmap(trollImg.idle2);
@@ -251,14 +291,17 @@ bool gameMainLoop (
     ALLEGRO_TIMER * timer,
     ALLEGRO_EVENT_QUEUE * queue,
     ALLEGRO_FONT * font,
+    Keys * keys,
+    ALLEGRO_BITMAP ** spellBorder,
     int * mapNav,
     int * floorNumber,
     char map[][maxMapWidth],
     Mapsize mapsize,
     Tiles * mapTiles,
     int numMonsters,
-    MagicImg * fireballImg,
-    MagicImg * iceshardImg,
+    // MagicImg * fireballImg,
+    // MagicImg * iceshardImg,
+    AllMagics * allMagics,
     Sprites * playerImg,
     int typeMonsters,
     Sprites * trollImg,
@@ -304,10 +347,16 @@ bool gameMainLoop (
     bool exit = false;
     bool redraw = true;
     bool combatRange = false;
-    bool spellTrigger = false;
+    //bool spellTrigger = false;
+
+    float borderPos[2] = {(displayWidth - ((displayWidth * 6) / 7)), displayHeight - 84};    // {x, y}
+    float spellKeysPos[2] = {borderPos[0] + 6.5, borderPos[1] + 25};    // {x, y}
+
     int spellDistance[2];  // (x, y)
     int spellCounter = 0;
     int spellType = 0;
+    int spellCasted = 0;
+
     int animationTimer = 0;    // animação do player e monstros
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
     int respawnTimer = 0;
@@ -431,6 +480,7 @@ bool gameMainLoop (
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, magicMissile, &spellType);
+                                    spellCounter = 0;
                                     break;
                                 }
                             }
@@ -454,6 +504,7 @@ bool gameMainLoop (
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, lightning, &spellType);
+                                    spellCounter = 0;
                                     break;
                                 }
                             }
@@ -465,6 +516,7 @@ bool gameMainLoop (
                             for (int i = 0; i < numMonsters; i++) {
                                 if (monsterInRange.id == monsters[i].id) {
                                     castSpell(&monsters[i], &player, iceshard, &spellType);
+                                    spellCounter = 0;
                                     break;
                                 }
                             }
@@ -533,58 +585,197 @@ bool gameMainLoop (
             if (spellType && player.mana > 0) {
                 switch (spellType) {
                     case magicMissile:
-                        al_draw_line(player.x + 16, player.y + 16, monsterInRange.x + 16, monsterInRange.y + 16, al_map_rgb_f(255, 255, 255), 2);
+                        spellDistance[0] = (monsterInRange.x - player.x) / 5;
+                        spellDistance[1] = (monsterInRange.y - player.y) / 5;
                         break;
                     case fireball:
-                        spellTrigger = true;
                         spellDistance[0] = (monsterInRange.x - player.x) / 8;
                         spellDistance[1] = (monsterInRange.y - player.y) / 8;
                         break;
                     case lightning:
+                        spellDistance[0] = (monsterInRange.x - player.x) / 7;
+                        spellDistance[1] = (monsterInRange.y - player.y) / 7;
                         break;
                     case iceshard:
-                        spellTrigger = true;
-                        spellDistance[0] = (monsterInRange.x - player.x) / 10;
-                        spellDistance[1] = (monsterInRange.y - player.y) / 10;
+                        spellDistance[0] = (monsterInRange.x - player.x) / 8;
+                        spellDistance[1] = (monsterInRange.y - player.y) / 8;
                         break;
                 }
+                spellCasted = spellType;
                 spellType = 0;
             }
             
-            if (spellTrigger) {
-                if (spellCounter < 2) {
-                    al_draw_bitmap(fireballImg->img1, player.x + 16, player.y + 16, 0);
-                    spellCounter++;
-                }
-                else if (spellCounter < 4) {
-                    al_draw_bitmap(fireballImg->img2, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                    spellCounter++;
-                }
-                else if (spellCounter < 6) {
-                    al_draw_bitmap(fireballImg->img3, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                    spellCounter++;
-                }
-                else if (spellCounter < 8) {
-                    al_draw_bitmap(fireballImg->img4, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                    spellCounter++;
-                }
-                else if (spellCounter < 10) {
-                    al_draw_bitmap(fireballImg->img5, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                    spellCounter++;
-                }
-                else if (spellCounter < 12) {
-                    al_draw_bitmap(fireballImg->img6, (spellDistance[0] * spellCounter + player.x +16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                    spellCounter++;
-                }
-                else if (spellCounter < 14) {
-                    al_draw_bitmap(fireballImg->img7, (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
-                    spellCounter++;
-                }
-                else {
-                    al_draw_bitmap(fireballImg->img8, monsterInRange.x + 16, monsterInRange.y + 16, player.direc);
-                    spellCounter--;
-                    spellTrigger = false;
-                }
+            switch (spellCasted) {
+                case magicMissile:
+                    if (spellCounter < 2) {
+                        al_draw_bitmap(allMagics->spell[0].img[0], player.x, player.y, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 4) {
+                        al_draw_bitmap(allMagics->spell[0].img[1], (spellDistance[0] * spellCounter + player.x), (spellDistance[1] * spellCounter + player.y), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 6) {
+                        al_draw_bitmap(allMagics->spell[0].img[2], (spellDistance[0] * spellCounter + player.x), (spellDistance[1] * spellCounter + player.y), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 8) {
+                        al_draw_bitmap(allMagics->spell[0].img[3], (spellDistance[0] * spellCounter + player.x), (spellDistance[1] * spellCounter + player.y), player.direc);
+                        spellCounter++;
+                    }
+                    else {
+                        al_draw_bitmap(allMagics->spell[0].img[4], monsterInRange.x, monsterInRange.y, player.direc);
+                        spellCounter--;
+                        spellCasted = 0;
+                    }
+                    break;
+                case fireball:
+                    if (spellCounter < 2) {
+                        al_draw_bitmap(allMagics->spell[1].img[0], player.x + 16, player.y + 16, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 4) {
+                        al_draw_bitmap(allMagics->spell[1].img[1], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 6) {
+                        al_draw_bitmap(allMagics->spell[1].img[2], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 8) {
+                        al_draw_bitmap(allMagics->spell[1].img[3], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 10) {
+                        al_draw_bitmap(allMagics->spell[1].img[4], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 12) {
+                        al_draw_bitmap(allMagics->spell[1].img[5], (spellDistance[0] * spellCounter + player.x +16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 14) {
+                        al_draw_bitmap(allMagics->spell[1].img[6], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else {
+                        al_draw_bitmap(allMagics->spell[1].img[7], monsterInRange.x + 16, monsterInRange.y + 16, player.direc);
+                        spellCounter--;
+                        spellCasted = 0;
+                    }
+                    break;
+                case lightning:
+                    if (spellCounter < 2) {
+                        al_draw_bitmap(allMagics->spell[2].img[0], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 4) {
+                        al_draw_bitmap(allMagics->spell[2].img[1], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 6) {
+                        al_draw_bitmap(allMagics->spell[2].img[2], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 8) {
+                        al_draw_bitmap(allMagics->spell[2].img[3], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 10) {
+                        al_draw_bitmap(allMagics->spell[2].img[4], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 12) {
+                        al_draw_bitmap(allMagics->spell[2].img[5], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter++;
+                    }
+                    else {
+                        al_draw_bitmap(allMagics->spell[2].img[6], monsterInRange.x, monsterInRange.y, 0);
+                        spellCounter--;
+                        spellCasted = 0;
+                    }
+                    break;
+                case iceshard:
+                    if (spellCounter < 2) {
+                        al_draw_bitmap(allMagics->spell[3].img[0], player.x + 16, player.y + 16, 0);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 4) {
+                        al_draw_bitmap(allMagics->spell[3].img[1], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 6) {
+                        al_draw_bitmap(allMagics->spell[3].img[2], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 8) {
+                        al_draw_bitmap(allMagics->spell[3].img[3], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 10) {
+                        al_draw_bitmap(allMagics->spell[3].img[4], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 12) {
+                        al_draw_bitmap(allMagics->spell[3].img[5], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else if (spellCounter < 14) {
+                        al_draw_bitmap(allMagics->spell[3].img[6], (spellDistance[0] * spellCounter + player.x + 16), (spellDistance[1] * spellCounter + player.y + 16), player.direc);
+                        spellCounter++;
+                    }
+                    else {
+                        al_draw_bitmap(allMagics->spell[3].img[7], monsterInRange.x + 16, monsterInRange.y + 16, player.direc);
+                        spellCounter--;
+                        spellCasted = 0;
+                    }
+                    break;
+            }
+
+            // desenha as bordas/molduras dos icones de feitiços
+            al_draw_bitmap(*spellBorder, borderPos[0], borderPos[1], 0);
+            al_draw_bitmap(*spellBorder, borderPos[0] + 42, borderPos[1], 0);
+            al_draw_bitmap(*spellBorder, borderPos[0] + 84, borderPos[1], 0);
+            al_draw_bitmap(*spellBorder, borderPos[0] + 126, borderPos[1], 0);
+
+            // desenha os feitiçoes dentro das molduras
+            al_draw_bitmap(allMagics->spell[0].img[2], borderPos[0], borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[1].img[0], borderPos[0] + 50, borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[2].img[3], borderPos[0] + 92, borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[3].img[6], borderPos[0] + 134, borderPos[1] + 6, 0);
+
+            // desenha as keys dos ataques
+            switch (spellCasted) {
+                case 0:
+                    al_draw_bitmap_region(keys->Q, 0, 0, 19, 21, spellKeysPos[0], spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->W, 0, 0, 19, 21, spellKeysPos[0] + 42, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->E, 0, 0, 19, 21, spellKeysPos[0] + 84, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->R, 0, 0, 19, 21, spellKeysPos[0] + 126, spellKeysPos[1], 0);
+                    break;
+                case magicMissile:
+                    al_draw_bitmap_region(keys->Q, 19, 0, 19, 21, spellKeysPos[0], spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->W, 0, 0, 19, 21, spellKeysPos[0] + 42, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->E, 0, 0, 19, 21, spellKeysPos[0] + 84, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->R, 0, 0, 19, 21, spellKeysPos[0] + 126, spellKeysPos[1], 0);
+                    break;
+                case fireball:
+                    al_draw_bitmap_region(keys->Q, 0, 0, 19, 21, spellKeysPos[0], spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->W, 19, 0, 19, 21, spellKeysPos[0] + 42, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->E, 0, 0, 19, 21, spellKeysPos[0] + 84, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->R, 0, 0, 19, 21, spellKeysPos[0] + 126, spellKeysPos[1], 0);
+                    break;
+                case lightning:
+                    al_draw_bitmap_region(keys->Q, 0, 0, 19, 21, spellKeysPos[0], spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->W, 0, 0, 19, 21, spellKeysPos[0] + 42, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->E, 19, 0, 19, 21, spellKeysPos[0] + 84, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->R, 0, 0, 19, 21, spellKeysPos[0] + 126, spellKeysPos[1], 0);
+                    break;
+                case iceshard:
+                    al_draw_bitmap_region(keys->Q, 0, 0, 19, 21, spellKeysPos[0], spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->W, 0, 0, 19, 21, spellKeysPos[0] + 42, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->E, 0, 0, 19, 21, spellKeysPos[0] + 84, spellKeysPos[1], 0);
+                    al_draw_bitmap_region(keys->R, 19, 0, 19, 21, spellKeysPos[0] + 126, spellKeysPos[1], 0);
+                    break;
             }
 
             // desenha a sprite player e monstros
