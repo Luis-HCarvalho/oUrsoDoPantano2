@@ -96,6 +96,8 @@ typedef struct {
     ALLEGRO_BITMAP * floor2;
     ALLEGRO_BITMAP * floor3;
     ALLEGRO_BITMAP * trap;
+    ALLEGRO_BITMAP * waterFount;
+    ALLEGRO_BITMAP * pillar;
 } Tiles;
 
 typedef struct {

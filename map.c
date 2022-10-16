@@ -10,6 +10,8 @@
     D = parte de cima da parede, canto (parte inferior direita do mapa)
     w = parede
     f = piso
+    1 = fonte de água
+    2 = pilar
 
 */
 
@@ -71,11 +73,8 @@ void mapGenerator () {
         }
         else if (line == 1) {
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "c");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "d\n");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "t\n");
                 }
                 else {
                     fprintf(mapFile, "t");
@@ -84,11 +83,8 @@ void mapGenerator () {
         }
         else if (line == 2) {
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "l");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "r\n");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "w\n");
                 }
                 else {
                     fprintf(mapFile, "w");
@@ -97,11 +93,8 @@ void mapGenerator () {
         }
         else if (line  == mapHeight) {
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "C");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "D");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "b");
                 }
                 else {
                     fprintf(mapFile, "b");
@@ -109,15 +102,22 @@ void mapGenerator () {
             }
         }
         else {
+            srand(time(NULL));
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "l");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "r\n");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "f\n");
                 }
                 else {
-                    fprintf(mapFile, "f");
+                    if (line == 3 && (rand() % 500) == 1) {
+                        // uma chance em 500
+                        fprintf(mapFile, "1");
+                    }
+                    else if (line == 3 && (rand() % 15) == 1) {
+                        fprintf(mapFile, "2");
+                    }
+                    else {
+                        fprintf(mapFile, "f");
+                    }
                 }
             }
         }

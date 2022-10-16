@@ -149,6 +149,8 @@ int main () {
     mapTiles.floor1 = al_load_bitmap("./assets/tiles/floor_1.png");
     mapTiles.floor2 = al_load_bitmap("./assets/tiles/floor_2.png");
     mapTiles.floor3 = al_load_bitmap("./assets/tiles/floor_3.png");
+    mapTiles.waterFount = al_load_bitmap("./assets/tiles/fountain.png");
+    mapTiles.pillar = al_load_bitmap("./assets/tiles/pillar.png");
 
     // tipos de evento que reagiremos no programa
     al_register_event_source(queue, al_get_keyboard_event_source());
@@ -176,9 +178,9 @@ int main () {
     initPlayer(&player);
 
     while (gameStatus) {
-        if (floorNumber == -1) {
-            // mapa fixo para o player comprar itens, acessar baus, etc
-            //getMap("./maps/map.txt", map, &mapsize);
+        // mapa fixo para o player comprar itens, acessar baus, etc
+        if (floorNumber == 0) {
+            getMap("./maps/dungeonEntrance.txt", map, &mapsize);
         }
         else {
             mapGenerator();
@@ -196,16 +198,22 @@ int main () {
         }
         player.y = displayHeight / 2;
 
-        srand(time(NULL));
-        numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 2);
-        if (floorNumber / 2 == 0) {
-            typeMonsters = rand() %  1;
+        if (floorNumber == 0) {
+            numMonsters = 0;
         }
         else {
-            typeMonsters = rand() % (floorNumber / 2);
+            srand(time(NULL));
+            numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 3);
+        
+            if (floorNumber / 2 == 0) {
+                typeMonsters = rand() %  1;
+            }
+            else {
+                typeMonsters = rand() % (floorNumber / 2);
 
-            if (typeMonsters > 1) {
-                typeMonsters = 0;
+                if (typeMonsters > 1) {
+                    typeMonsters = 0;
+                }
             }
         }
 
@@ -302,6 +310,8 @@ int main () {
     al_destroy_bitmap(mapTiles.floor1);
     al_destroy_bitmap(mapTiles.floor2);
     al_destroy_bitmap(mapTiles.floor3);
+    al_destroy_bitmap(mapTiles.waterFount);
+    al_destroy_bitmap(mapTiles.pillar);
 
     return 0;
 }
@@ -373,7 +383,8 @@ bool gameMainLoop (
     int spellType = 0;
     int spellCasted = 0;
 
-    int animationTimer = 0;    // animação do player e monstros
+    int fountTimer = 0;
+    int animationTimer = 0;
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
     int respawnTimer = 0;
 
@@ -575,6 +586,30 @@ bool gameMainLoop (
                 }
                 else if (map[i / mapsize.width][i % mapsize.width] == 'w') {
                     al_draw_bitmap(mapTiles->wall, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == '1') {
+                    map[i / mapsize.width - 1][i % mapsize.width] = 's';
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == '2') {
+                    map[i / mapsize.width - 1][i % mapsize.width] = '0';
+                    map[i / mapsize.width - 2][i % mapsize.width] = 'p';
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 's') {
+                    if (fountTimer < 8) {
+                        al_draw_bitmap_region(mapTiles->waterFount, 0, 0, 16, 32, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                        fountTimer++;
+                    }
+                    else if (fountTimer < 16) {
+                        al_draw_bitmap_region(mapTiles->waterFount, 16, 0, 16, 32, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                        fountTimer++;
+                    }
+                    else {
+                        al_draw_bitmap_region(mapTiles->waterFount, 32, 0, 16, 32, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
+                        fountTimer = 0;
+                    }
+                }
+                else if (map[i / mapsize.width][i % mapsize.width] == 'p') {
+                    al_draw_bitmap_region(mapTiles->pillar, 0, 0, 16, 48, ((displayWidth -  mapsize.width * sizeTile) / 2) + ((i % mapsize.width) * sizeTile), ((displayHeight -  mapsize.height * sizeTile) / 2) + ((i / mapsize.width) * sizeTile), 0);
                 }
                 else if (map[i / mapsize.width][i % mapsize.width] == 'f') {
                     switch(tilesOrder[i]) {
