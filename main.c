@@ -772,7 +772,7 @@ bool gameMainLoop (
             // algum monstro esta dentro do combatRange
             if (combatRange) {
                 // mensagem que o ataque do player esta habilitado
-                al_draw_textf(font, al_map_rgb(255, 255, 255), 1000, 600, 0, "APERTE X PARA ATACAR");
+                al_draw_textf(font, al_map_rgb(255, 255, 255), 1000, 600, 0, "MONSTRO DENTRO DO RAIO DE COMBATE");
                 
                 // barra de vida de monstros
                 if (monsterInRange.angry) {
