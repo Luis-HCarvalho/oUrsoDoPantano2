@@ -788,6 +788,9 @@ bool gameMainLoop (
 
             // barra de vida
             if (player->health < 0) {
+                al_draw_textf(font, al_map_rgb(255, 255, 255), (displayWidth / 2 - 32), 60, 0, "GAME OVER");
+                al_flip_display();
+                al_rest(10);
                 exit = true;
             }
             else {
