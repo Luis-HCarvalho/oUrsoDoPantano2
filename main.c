@@ -788,9 +788,13 @@ bool gameMainLoop (
 
             // barra de vida
             if (player->health < 0) {
+                //desenha tela de morte
+                al_clear_to_color(al_map_rgb(0, 0, 0));
                 al_draw_textf(font, al_map_rgb(255, 255, 255), (displayWidth / 2 - 32), 60, 0, "GAME OVER");
+                al_draw_bitmap(playerImg->idle4, player->x, player->y, player->direc);
                 al_flip_display();
                 al_rest(10);
+                //sai do jogo
                 exit = true;
             }
             else {
