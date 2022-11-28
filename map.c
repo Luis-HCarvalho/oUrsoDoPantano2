@@ -44,9 +44,14 @@ void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize) {
 	fclose(mapFile);
 }
 
-void mapGenerator () {
+// limite andar 99 
+void mapGenerator (int floorNumber) {
+    char d, u;
+    d = (floorNumber / 10) + '0' ; // dezena
+    u = (floorNumber % 10) + '0';  // unidade
 
-    char filename[] = "./maps/map.txt";
+    char filename[] = {'.', '/','m','a','p','s','/','m','a','p', d, u, '.', 't', 'x', 't', '\0'};
+    //char filename[] = "./maps/map.txt";
 
     // open file
     FILE * mapFile = fopen(filename, "w");
@@ -58,6 +63,8 @@ void mapGenerator () {
     srand(time(NULL));
     int mapHeight = rand() % maxMapHeight;
     int mapWidth = rand() % maxMapWidth;
+    // int mapHeight = maxMapHeight;
+    // int mapWidth = maxMapWidth;
 
     if (mapHeight < 10) {
         mapHeight += 10;
