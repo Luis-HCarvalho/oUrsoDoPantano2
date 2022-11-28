@@ -25,6 +25,7 @@ Monster initMonster (int type, int id, Maplimits maplim) {
     monster.type = type;
     monster.id = id;
     monster.angry = false;
+    monster.attackCooldown = 0;
     
     srand(rand() + id + time(NULL));
     monster.x = (rand() % (maplim.rightBorder - maplim.leftBorder)) + maplim.leftBorder;
@@ -32,37 +33,34 @@ Monster initMonster (int type, int id, Maplimits maplim) {
     monster.direc = rand() % 2;  // direção da movimentação
 
     switch (type) {
-        case Troll:
-            monster.rank = 4;
-            monster.attackCooldown = 10;
+        case Bandit:
+            monster.rank = 1;
             break;
-        case bigRed:
+        case Wolf:
+            monster.rank = 1;
+            break;
+        case Bear:
+            monster.rank = 2;
+            break;
+        case Troll:
+            monster.rank = 3;
+            break;
+        case BigRed:
             monster.rank = 4;
-            monster.attackCooldown = 10;
+            break;
+        case Golem:
+            monster.rank = 5;
+            break;
+        case Knight:
+            monster.rank = 6;
+            break;
+        case Guardian:
+            monster.rank = 7;
             break;
     }
 
-    switch (monster.rank) {
-        case 1:     // golem
-            monster.health = 200;
-            monster.damage = 40;
-            break;
-        case 2:
-            monster.health = 150;
-            monster.damage = 20;
-            break;
-        case 3:
-            monster.health = 100;
-            monster.damage = 20;
-            break;
-        case 4:
-            monster.health = 80;
-            monster.damage = 10;
-            break;
-        case 5:
-            monster.health = 50;
-            monster.damage = 5;
-            break;
-    }
+    monster.health = monster.rank * 50;
+    monster.damage = monster.rank * 10;
+
     return monster;
 }
