@@ -10,6 +10,8 @@
     D = parte de cima da parede, canto (parte inferior direita do mapa)
     w = parede
     f = piso
+    1 = fonte de água
+    2 = pilar
 
 */
 
@@ -42,9 +44,14 @@ void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize) {
 	fclose(mapFile);
 }
 
-void mapGenerator () {
+// limite andar 99 
+void mapGenerator (int floorNumber) {
+    char d, u;
+    d = (floorNumber / 10) + '0' ; // dezena
+    u = (floorNumber % 10) + '0';  // unidade
 
-    char filename[] = "./maps/map.txt";
+    char filename[] = {'.', '/','m','a','p','s','/','m','a','p', d, u, '.', 't', 'x', 't', '\0'};
+    //char filename[] = "./maps/map.txt";
 
     // open file
     FILE * mapFile = fopen(filename, "w");
@@ -56,6 +63,8 @@ void mapGenerator () {
     srand(time(NULL));
     int mapHeight = rand() % maxMapHeight;
     int mapWidth = rand() % maxMapWidth;
+    // int mapHeight = maxMapHeight;
+    // int mapWidth = maxMapWidth;
 
     if (mapHeight < 10) {
         mapHeight += 10;
@@ -71,11 +80,8 @@ void mapGenerator () {
         }
         else if (line == 1) {
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "c");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "d\n");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "t\n");
                 }
                 else {
                     fprintf(mapFile, "t");
@@ -84,11 +90,8 @@ void mapGenerator () {
         }
         else if (line == 2) {
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "l");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "r\n");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "w\n");
                 }
                 else {
                     fprintf(mapFile, "w");
@@ -97,11 +100,8 @@ void mapGenerator () {
         }
         else if (line  == mapHeight) {
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "C");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "D");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "b");
                 }
                 else {
                     fprintf(mapFile, "b");
@@ -109,15 +109,22 @@ void mapGenerator () {
             }
         }
         else {
+            srand(time(NULL));
             for (int tileCode = 0; tileCode < mapWidth; tileCode++) {
-                if (tileCode == 0) {
-                    fprintf(mapFile, "l");
-                }
-                else if (tileCode + 1 == mapWidth) {
-                    fprintf(mapFile, "r\n");
+                if (tileCode + 1 == mapWidth) {
+                    fprintf(mapFile, "f\n");
                 }
                 else {
-                    fprintf(mapFile, "f");
+                    if (line == 3 && (rand() % 500) == 1) {
+                        // uma chance em 500
+                        fprintf(mapFile, "1");
+                    }
+                    else if (line == 3 && (rand() % 15) == 1) {
+                        fprintf(mapFile, "2");
+                    }
+                    else {
+                        fprintf(mapFile, "f");
+                    }
                 }
             }
         }

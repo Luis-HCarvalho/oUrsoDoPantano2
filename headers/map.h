@@ -13,17 +13,9 @@ typedef struct {
     int wall;
 } Mapsize;
 
-// substituir posteriormente pelo nome dos mapas
-enum MapNavigation {
-    room0 = 0,
-    room1,
-    room2,
-    room3,
-};
-
 // recebe o path para o txt do mapa e uma matrix para armazenar map[maxMapHeight][maxMapWidth]
 void getMap (char mapName[], char map[][maxMapWidth], Mapsize * mapsize);
 
-void mapGenerator();
+void mapGenerator(int floorNumber);
 
 #endif // MAP_H

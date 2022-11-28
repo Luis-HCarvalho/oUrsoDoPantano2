@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
@@ -56,7 +57,7 @@ typedef struct {
     int health;
     int damage;
     int rank;
-    int type;  // talvez não precise
+    int type;
     bool angry;  // se o player entrar no seu compo de visão ele ira atacar
     int id;
     int attackCooldown;
@@ -70,22 +71,15 @@ Monster initMonster (int type, int id, Maplimits maplim);
 
 // tipos de monstros
 enum monstertype {
-    //OrcWarrior,
-    Troll = 0,
-    bigRed,
+    Bandit = 0,
+    Wolf,
+    Bear,
+    Troll,
+    BigRed,
+    Golem,
+    Knight,
+    Guardian,
 };
-
-
-typedef struct {
-    ALLEGRO_BITMAP * idle1;
-    ALLEGRO_BITMAP * idle2;
-    ALLEGRO_BITMAP * idle3;
-    ALLEGRO_BITMAP * idle4;
-    ALLEGRO_BITMAP * walk1;
-    ALLEGRO_BITMAP * walk2;
-    ALLEGRO_BITMAP * walk3;
-    ALLEGRO_BITMAP * walk4;
-} Sprites;
 
 typedef struct {
     ALLEGRO_BITMAP * top;
@@ -96,6 +90,20 @@ typedef struct {
     ALLEGRO_BITMAP * floor2;
     ALLEGRO_BITMAP * floor3;
     ALLEGRO_BITMAP * trap;
+    ALLEGRO_BITMAP * waterFount;
+    ALLEGRO_BITMAP * pillar;
 } Tiles;
+
+typedef struct {
+    ALLEGRO_BITMAP * Q;
+    ALLEGRO_BITMAP * W;
+    ALLEGRO_BITMAP * E;
+    ALLEGRO_BITMAP * R;
+    ALLEGRO_BITMAP * ARROWUP;
+    ALLEGRO_BITMAP * ARROWDOWN;
+    ALLEGRO_BITMAP * ARROWLEFT;
+    ALLEGRO_BITMAP * ARROWRIGHT;
+} Keys;
+
 
 #endif // INIT_H
