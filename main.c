@@ -610,9 +610,9 @@ bool gameMainLoop (
             al_draw_bitmap(*spellBorder, borderPos[0] + 126, borderPos[1], 0);
 
             // desenha os feitiçoes dentro das molduras
-            al_draw_bitmap(allMagics->spell[0].img[2], borderPos[0], borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[0].img[2], borderPos[0] - 10, borderPos[1] , 0);
             al_draw_bitmap(allMagics->spell[1].img[0], borderPos[0] + 50, borderPos[1] + 6, 0);
-            al_draw_bitmap(allMagics->spell[2].img[3], borderPos[0] + 92, borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[2].img[3], borderPos[0] + 70, borderPos[1] -10, 0);
             al_draw_bitmap(allMagics->spell[3].img[6], borderPos[0] + 134, borderPos[1] + 6, 0);
 
             // desenha as keys dos ataques
@@ -860,17 +860,40 @@ bool gameMainLoop (
                 }
             }
             else if (*floorNumber == 1) {
-                if (player->x > 848) {
-                    al_draw_textf(font, al_map_rgb(255, 10, 10), 848 - 60, 500, 0, "Use fireball(W) para queimar seus inimigos");
-                }
-                else if (player->x > 672) {
-                    al_draw_textf(font, al_map_rgb(255, 10, 10), player->x - 60, 500, 0, "Use fireball(W) para queimar seus inimigos");
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 510, 0, "%d %d", player->x, player->y);
+                al_draw_textf(font, al_map_rgb(12, 131, 250), 470, 500, 0, "Use magic missile(Q) para eliminar seus inimigos");
+            }
+            else if (*floorNumber == 3) {
+                if (player->x > 620) {
+                    al_draw_textf(font, al_map_rgb(255, 10, 10), 475, 500, 0, "Use fireball(W) para queimar seus inimigos");
                 }
                 else {
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 500, 0, "O fogo é constituído de uma mistura de gases em alta temperatura.");
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 510, 0, "A luminosidade vista e o calor são provenientes da reação entre o");
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 520, 0, "combustível (inimigos) e o comburente (oxigênio).");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 500, 0, "O fogo é constituído de uma mistura de gases em alta temperatura.");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 510, 0, "A luminosidade vista e o calor são provenientes da reação entre o");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 520, 0, "combustível (inimigos) e o comburente (oxigênio).");
+                }
+            }
+            else if (*floorNumber == 5) {
+                if (player->x > 620) {
+                    al_draw_textf(font, al_map_rgb(50, 10, 255), 470, 500, 0, "Use lightning(E) para eletrocutar seus inimigos");
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 500, 0, "Relâmpago é uma corrente elétrica muito intensa. O fenômeno é");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 510, 0, "consequência do rápido movimento de elétrons de um lugar para");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 520, 0, "outro. Os elétrons se movem tão rápido que fazem o ar ao seu");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 530, 0, "redor iluminar-se, resultando em um clarão e um aquecer-se, que");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 540, 0, "geram um som: o trovão.");
+                }
+            }
+            else if (*floorNumber == 7) {
+                if (player->x > 620) {
+                    al_draw_textf(font, al_map_rgb(12, 214, 250), 470, 500, 0, "Use iceshard(R) para congelar seus inimigos");
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 500, 0, "A matéria é constituída de minúsculas partículas. De modo que,");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 510, 0, "simplificadamente, o que diferencia um estado físico de outro é ");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 520, 0, "a organização dessas partículas, se elas estão mais próximas umas");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 530, 0, "às outras ou mais afastadas.");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 540, 0, "");
                 }
             }
 
