@@ -70,31 +70,31 @@ void drawSpellAnim (
             break;
         case lightning:
             if ((*spellCounter) < 2) {
-                al_draw_bitmap(magicImg->img[0], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[0], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)++;
             }
             else if ((*spellCounter) < 4) {
-                al_draw_bitmap(magicImg->img[1], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[1], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)++;
             }
             else if ((*spellCounter) < 6) {
-                al_draw_bitmap(magicImg->img[2], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[2], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)++;
             }
             else if ((*spellCounter) < 8) {
-                al_draw_bitmap(magicImg->img[3], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[3], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)++;
             }
             else if ((*spellCounter) < 10) {
-                al_draw_bitmap(magicImg->img[4], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[4], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)++;
             }
             else if ((*spellCounter) < 12) {
-                al_draw_bitmap(magicImg->img[5], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[5], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)++;
             }
             else {
-                al_draw_bitmap(magicImg->img[6], monsterInRange.x, monsterInRange.y, 0);
+                al_draw_bitmap(magicImg->img[6], monsterInRange.x - 16, monsterInRange.y - 32, 0);
                 (*spellCounter)--;
                 *spellCasted = 0;
             }

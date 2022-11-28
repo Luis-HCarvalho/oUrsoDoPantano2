@@ -100,5 +100,7 @@ void killMonster (Monster * monster, Player * player) {
 bool levelUp (Player * player) {
     if (player->xp > (player->level * (20 + player->level))) {
         player->level++;
+        return true;
     }
+    return false;
 }
