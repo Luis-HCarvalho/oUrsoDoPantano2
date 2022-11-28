@@ -190,18 +190,30 @@ int main () {
         }
         else {
             srand(time(NULL));
-            numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 3);
+            numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 4) + 2;
         
-            if (floorNumber / 2 == 0) {
-                typeMonsters = rand() %  1;
+            if (floorNumber < 2) {
+                typeMonsters = Bandit;
+            }
+            else if (floorNumber < 5) {
+                typeMonsters = rand() %  2; // Bandit || Wolf 
+            }
+            else if (floorNumber < 8) {
+                typeMonsters = rand() %  2 + 1;  // Wolf || Bear
+            }
+            else if (floorNumber < 12) {
+                typeMonsters = rand() %  2 + 2;  // Bear || Troll
+            }
+            else if (floorNumber < 15) {
+                typeMonsters = rand() %  2 + 3;  // Troll || BigRed
+            }
+            else if (floorNumber < 20) {
+                typeMonsters = rand() %  2 + 4;  // BigRed  || Knight
             }
             else {
-                typeMonsters = rand() % (floorNumber / 2);
-
-                if (typeMonsters > 7) {
-                    typeMonsters = 0;
-                }
+                typeMonsters = Guardian;
             }
+
         }
 
         gameStatus = gameMainLoop(

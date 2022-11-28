@@ -76,9 +76,9 @@ enum monstertype {
     Bear,
     Troll,
     BigRed,
-    Golem,
     Knight,
     Guardian,
+    Golem,
 };
 
 typedef struct {
