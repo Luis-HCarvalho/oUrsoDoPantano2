@@ -136,3 +136,46 @@ void drawSpellAnim (
             break;
     }
 }
+
+void monsterAnimation (
+    Monster monster,
+    int animationNum,
+    ALLEGRO_BITMAP * monsterImg
+) {
+    if (monster.health > 0) {
+        switch (animationNum) {
+            case 1:
+                if (monster.angry) {
+                    al_draw_bitmap_region(monsterImg, (32 * 5), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap_region(monsterImg, 0, 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                break;
+            case 2:
+                if (monster.angry) {
+                    al_draw_bitmap_region(monsterImg, (32 * 6), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap_region(monsterImg, (32), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                break;
+            case 3:
+                if (monster.angry) {
+                    al_draw_bitmap_region(monsterImg, (32 * 7), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap_region(monsterImg, (32 * 2), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                break;
+            case 4:
+                if (monster.angry) {
+                    al_draw_bitmap_region(monsterImg, (32 * 8), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                else {
+                    al_draw_bitmap_region(monsterImg, (32 * 3), 0, 32, 32, monster.x, monster.y, monster.direc);
+                }
+                break;
+        }
+    }
+}

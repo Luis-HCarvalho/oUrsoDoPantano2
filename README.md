@@ -10,7 +10,14 @@
 
 
 <h3>Documentação allegro</h3>
-quickstart: https://github.com/liballeg/allegro_wiki/wiki/Quickstart
-wiki: https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace
+<ul>
+  <li>quickstart: https://github.com/liballeg/allegro_wiki/wiki/Quickstart</li>
+  <li>wiki: https://github.com/liballeg/allegro_wiki/wiki/Allegro-Vivace</li>
+</ul>
 
-
+<h3>Assets</h3>
+<ul>
+  <li>https://0x72.itch.io/dungeontileset-ii</li>
+  <li>https://superdark.itch.io/enchanted-forest-characters</li>
+  <li>https://nyknck.itch.io/fireball-animation?download</li>
+</ul>

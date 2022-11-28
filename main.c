@@ -23,18 +23,9 @@ bool gameMainLoop (
     Tiles * mapTiles,
     int numMonsters,
     AllMagics * allMagics,
-    Sprites * playerImg,
     Player * player,
     int typeMonsters,
-    Sprites * trollImg,
-    Sprites * bigRedImg
-);
-
-// desenha o sprite do monstro na tela, recebe o monstro os srpites e o num da sprite para desenhar
-void monsterAnimation (
-    Monster monster, 
-    int animationNum,
-    Sprites * monsterImg
+    Sprites * sprites
 );
 
 int main () {
@@ -44,7 +35,7 @@ int main () {
     must_init(al_init_image_addon(), "imgageAddon");
     must_init(al_init_primitives_addon(), "primitives");
 
-    ALLEGRO_TIMER * timer = al_create_timer(1.0 / 45.0);  //45
+    ALLEGRO_TIMER * timer = al_create_timer(1.0 / 50.0);  //45
     must_init(timer, "timer");
 
     ALLEGRO_EVENT_QUEUE * queue = al_create_event_queue();
@@ -56,12 +47,19 @@ int main () {
     ALLEGRO_FONT * font = al_create_builtin_font();
     must_init(font, "font");
 
-    // carrega os sprites de movimentação do player
-    Sprites playerImg;
-    playerImg.idle1 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_1.png");
-    playerImg.idle2 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_2.png");
-    playerImg.idle3 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_3.png");
-    playerImg.idle4 = al_load_bitmap("./assets/characters/Wizard/wizard_idle_walk_4.png");
+    // carrega os sprites dos personagens
+    Sprites sprites;
+    sprites.player = al_load_bitmap("./assets/characters/wizard_idle_walk.png");
+    sprites.princess = al_load_bitmap("./assets/characters/elfPrincess_idle_walk.png");
+    sprites.fairy = al_load_bitmap("./assets/characters/fairy_idle_walk.png");
+    sprites.bandit = al_load_bitmap("./assets/characters/bandit_idle_walk.png");
+    sprites.wolf = al_load_bitmap("./assets/characters/wolf_idle_walk.png");
+    sprites.bear = al_load_bitmap("./assets/characters/bear_idle_walk.png");
+    sprites.troll = al_load_bitmap("./assets/characters/troll_idle_walk.png");
+    sprites.bigRed = al_load_bitmap("./assets/characters/bigRed_idle_walk.png");
+    sprites.golem = al_load_bitmap("./assets/characters/golem_idle_walk.png");
+    sprites.knight = al_load_bitmap("./assets/characters/elvenKnight_idle_walk.png");
+    sprites.guardian = al_load_bitmap("./assets/characters/guardian_idle_walk.png");
 
     // carrega sprite keys do teclado
     Keys keys;
@@ -117,28 +115,7 @@ int main () {
     allMagics.spell[0] = magicMissileImg;
     allMagics.spell[1] = fireballImg;
     allMagics.spell[2] = lightningImg;
-    allMagics.spell[3] = iceshardImg;
-
-    // carrega os sprites de movimentação de troll
-    Sprites trollImg;
-    trollImg.idle1 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_1.png");
-    trollImg.idle2 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_2.png");
-    trollImg.idle3 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_3.png");
-    trollImg.idle4 = al_load_bitmap("./assets/characters/Troll/Troll_Idle_4.png");
-    trollImg.walk1 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_1.png");
-    trollImg.walk2 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_2.png");
-    trollImg.walk3 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_3.png");
-    trollImg.walk4 = al_load_bitmap("./assets/characters/Troll/Troll_Walk_4.png");
-
-    Sprites bigRedImg;
-    bigRedImg.idle1 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle1.png");
-    bigRedImg.idle2 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle2.png");
-    bigRedImg.idle3 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle3.png");
-    bigRedImg.idle4 = al_load_bitmap("./assets/characters/bigRed/bigRed_idle4.png");
-    bigRedImg.walk1 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk1.png");
-    bigRedImg.walk2 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk2.png");
-    bigRedImg.walk3 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk3.png");
-    bigRedImg.walk4 = al_load_bitmap("./assets/characters/bigRed/bigRed_walk4.png");
+    allMagics.spell[3] = iceshardImg; 
 
     // carrega tiles para o mapa
     Tiles mapTiles;
@@ -172,6 +149,7 @@ int main () {
     int mapLimLeft;
     int mapLimRight;
     bool goingDown = true;
+    char d, u;
 
     // init player
     Player player;
@@ -183,8 +161,17 @@ int main () {
             getMap("./maps/dungeonEntrance.txt", map, &mapsize);
         }
         else {
-            mapGenerator();
-            getMap("./maps/map.txt", map, &mapsize);
+            d = (floorNumber / 10) + '0' ; // dezena
+            u = (floorNumber % 10) + '0';  // unidade
+
+            char mapPath[] = {'.','/','m','a','p','s','/','m','a','p', d, u,'.','t','x','t', '\0'};
+
+            if (goingDown && access(mapPath, F_OK) != 0) {
+                // gera um novo mapa se o proximo andar ainda não foi criado
+                mapGenerator(floorNumber);
+            }
+
+            getMap(mapPath, map, &mapsize);
         }
 
         // posição do player a subir ou descer os andares da dungeon
@@ -211,7 +198,7 @@ int main () {
             else {
                 typeMonsters = rand() % (floorNumber / 2);
 
-                if (typeMonsters > 1) {
+                if (typeMonsters > 7) {
                     typeMonsters = 0;
                 }
             }
@@ -230,11 +217,9 @@ int main () {
                 &mapTiles,
                 numMonsters,
                 &allMagics,
-                &playerImg,
                 &player,
                 typeMonsters,
-                &trollImg,
-                &bigRedImg
+                &sprites
         );
 
         switch (mapNav) {
@@ -258,10 +243,17 @@ int main () {
     al_destroy_display(display);
     al_destroy_font(font);
 
-    al_destroy_bitmap(playerImg.idle1);
-    al_destroy_bitmap(playerImg.idle2);
-    al_destroy_bitmap(playerImg.idle3);
-    al_destroy_bitmap(playerImg.idle4);
+    al_destroy_bitmap(sprites.player);
+    al_destroy_bitmap(sprites.princess);
+    al_destroy_bitmap(sprites.fairy);
+    al_destroy_bitmap(sprites.bandit);
+    al_destroy_bitmap(sprites.wolf);
+    al_destroy_bitmap(sprites.bear);
+    al_destroy_bitmap(sprites.troll);
+    al_destroy_bitmap(sprites.bigRed);
+    al_destroy_bitmap(sprites.golem);
+    al_destroy_bitmap(sprites.knight);
+    al_destroy_bitmap(sprites.guardian);
 
     al_destroy_bitmap(keys.Q);
     al_destroy_bitmap(keys.W);
@@ -284,24 +276,6 @@ int main () {
             al_destroy_bitmap(magicMissileImg.img[i]);
         }
     }
-
-    al_destroy_bitmap(trollImg.idle1);
-    al_destroy_bitmap(trollImg.idle2);
-    al_destroy_bitmap(trollImg.idle3);
-    al_destroy_bitmap(trollImg.idle4);
-    al_destroy_bitmap(trollImg.walk1);
-    al_destroy_bitmap(trollImg.walk2);
-    al_destroy_bitmap(trollImg.walk3);
-    al_destroy_bitmap(trollImg.walk4);
-
-    al_destroy_bitmap(bigRedImg.idle1);
-    al_destroy_bitmap(bigRedImg.idle2);
-    al_destroy_bitmap(bigRedImg.idle3);
-    al_destroy_bitmap(bigRedImg.idle4);
-    al_destroy_bitmap(bigRedImg.walk1);
-    al_destroy_bitmap(bigRedImg.walk2);
-    al_destroy_bitmap(bigRedImg.walk3);
-    al_destroy_bitmap(bigRedImg.walk4);
 
     al_destroy_bitmap(mapTiles.top);
     al_destroy_bitmap(mapTiles.topSide);
@@ -332,11 +306,10 @@ bool gameMainLoop (
     // MagicImg * fireballImg,
     // MagicImg * iceshardImg,
     AllMagics * allMagics,
-    Sprites * playerImg,
+    //Sprites * playerImg,
     Player * player,
     int typeMonsters,
-    Sprites * trollImg,
-    Sprites * bigRedImg
+    Sprites * sprites
 ) {
     
     ALLEGRO_EVENT event;
@@ -394,6 +367,7 @@ bool gameMainLoop (
 
         switch(event.type) {
             // logica do jogo
+
             case ALLEGRO_EVENT_TIMER:
                 // mov
                 if (mov.up && player->y > maplim.topBorder) {
@@ -438,7 +412,10 @@ bool gameMainLoop (
 
                 // determina se um monstro deve seguir o player
                 for (int i = 0; i < numMonsters; i++) {
-                    monsterFollow(&monsters[i], &(*player), attackCooldown);
+                    monsterFollow(&monsters[i], &(*player));
+                    if (monsters[i].attackCooldown > 0) {
+                        monsters[i].attackCooldown--;
+                    }
                 }
 
                 // respawn de monstros
@@ -453,7 +430,7 @@ bool gameMainLoop (
                 }
 
                 // navegação entre mapas
-                if (player->x > maplim.rightBorder - 4 ) {
+                if ((player->x > maplim.rightBorder - 4) && (*floorNumber < 99)) {
                     *mapNav = 1;
                 }
                 else if ((player->x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
@@ -626,45 +603,6 @@ bool gameMainLoop (
                 }
             }
 
-            // magias
-            if (spellType && player->mana > 0) {
-                switch (spellType) {
-                    case magicMissile:
-                        spellDistance[0] = (monsterInRange.x - player->x) / 5;
-                        spellDistance[1] = (monsterInRange.y - player->y) / 5;
-                        break;
-                    case fireball:
-                        spellDistance[0] = (monsterInRange.x - player->x) / 8;
-                        spellDistance[1] = (monsterInRange.y - player->y) / 8;
-                        break;
-                    case lightning:
-                        spellDistance[0] = (monsterInRange.x - player->x) / 7;
-                        spellDistance[1] = (monsterInRange.y - player->y) / 7;
-                        break;
-                    case iceshard:
-                        spellDistance[0] = (monsterInRange.x - player->x) / 8;
-                        spellDistance[1] = (monsterInRange.y - player->y) / 8;
-                        break;
-                }
-                spellCasted = spellType;
-                spellType = 0;
-            }
-            
-            switch (spellCasted) {
-                case magicMissile:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[0], &spellCounter, spellDistance, *player, monsterInRange);
-                    break;
-                case fireball:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[1], &spellCounter, spellDistance, *player, monsterInRange);
-                    break;
-                case lightning:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[2], &spellCounter, spellDistance, *player, monsterInRange);
-                    break;
-                case iceshard:
-                    drawSpellAnim(&spellCasted, &allMagics->spell[3], &spellCounter, spellDistance, *player, monsterInRange);
-                    break;
-            }
-
             // desenha as bordas/molduras dos icones de feitiços
             al_draw_bitmap(*spellBorder, borderPos[0], borderPos[1], 0);
             al_draw_bitmap(*spellBorder, borderPos[0] + 42, borderPos[1], 0);
@@ -713,60 +651,171 @@ bool gameMainLoop (
 
             // desenha a sprite player e monstros
             if (animationTimer < 20) {
-                al_draw_bitmap(playerImg->idle1, player->x, player->y, player->direc);
+                al_draw_bitmap_region(sprites->player, 0, 0, 32, 32, player->x, player->y, player->direc);
                 
                 for (int i = 0; i < numMonsters; i++) {
-                    if (monsters[i].type == Troll) {
-                        monsterAnimation(monsters[i], 1, trollImg);
+                    if (monsters[i].type == Bandit) {
+                        monsterAnimation(monsters[i], 1, sprites->bandit);
                     }
-                    else if (monsters[i].type == bigRed) {
-                        monsterAnimation(monsters[i], 1, bigRedImg);
+                    else if (monsters[i].type == Wolf) {
+                        monsterAnimation(monsters[i], 1, sprites->wolf);
+                    }
+                    else if (monsters[i].type == Bear) {
+                        monsterAnimation(monsters[i], 1, sprites->bear);
+                    }
+                    else if (monsters[i].type == Troll) {
+                        monsterAnimation(monsters[i], 1, sprites->troll);
+                    }
+                    else if (monsters[i].type == BigRed) {
+                        monsterAnimation(monsters[i], 1, sprites->bigRed);
+                    }
+                    else if (monsters[i].type == Golem) {
+                        monsterAnimation(monsters[i], 1, sprites->golem);
+                    }
+                    else if (monsters[i].type == Knight) {
+                        monsterAnimation(monsters[i], 1, sprites->knight);
+                    }
+                    else if (monsters[i].type == Guardian) {
+                        monsterAnimation(monsters[i], 1, sprites->guardian);
                     }
                 }
 
                 animationTimer++;
             }
             else if (animationTimer < 40) {
-                al_draw_bitmap(playerImg->idle2, player->x, player->y, player->direc);
+                al_draw_bitmap_region(sprites->player, 33, 0, 32, 32, player->x, player->y, player->direc);
 
                 for (int i = 0; i < numMonsters; i++) {
-                    if (monsters[i].type == Troll) {
-                        monsterAnimation(monsters[i], 2, trollImg);
+                    if (monsters[i].type == Bandit) {
+                        monsterAnimation(monsters[i], 2, sprites->bandit);
                     }
-                    else if (monsters[i].type == bigRed) {
-                        monsterAnimation(monsters[i], 2, bigRedImg);
+                    else if (monsters[i].type == Wolf) {
+                        monsterAnimation(monsters[i], 2, sprites->wolf);
+                    }
+                    else if (monsters[i].type == Bear) {
+                        monsterAnimation(monsters[i], 2, sprites->bear);
+                    }
+                    else if (monsters[i].type == Troll) {
+                        monsterAnimation(monsters[i], 2, sprites->troll);
+                    }
+                    else if (monsters[i].type == BigRed) {
+                        monsterAnimation(monsters[i], 2, sprites->bigRed);
+                    }
+                    else if (monsters[i].type == Golem) {
+                        monsterAnimation(monsters[i], 2, sprites->golem);
+                    }
+                    else if (monsters[i].type == Knight) {
+                        monsterAnimation(monsters[i], 2, sprites->knight);
+                    }
+                    else if (monsters[i].type == Guardian) {
+                        monsterAnimation(monsters[i], 2, sprites->guardian);
                     }
                 }
 
                 animationTimer++;
             }
             else if (animationTimer < 60) {
-                al_draw_bitmap(playerImg->idle3, player->x, player->y, player->direc);
+                al_draw_bitmap_region(sprites->player, 65, 0, 32, 32, player->x, player->y, player->direc);
 
                 for (int i = 0; i < numMonsters; i++) {
-                    if (monsters[i].type == Troll) {
-                        monsterAnimation(monsters[i], 3, trollImg);
+                    if (monsters[i].type == Bandit) {
+                        monsterAnimation(monsters[i], 3, sprites->bandit);
                     }
-                    else if (monsters[i].type == bigRed) {
-                        monsterAnimation(monsters[i], 3, bigRedImg);
+                    else if (monsters[i].type == Wolf) {
+                        monsterAnimation(monsters[i], 3, sprites->wolf);
+                    }
+                    else if (monsters[i].type == Bear) {
+                        monsterAnimation(monsters[i], 3, sprites->bear);
+                    }
+                    else if (monsters[i].type == Troll) {
+                        monsterAnimation(monsters[i], 3, sprites->troll);
+                    }
+                    else if (monsters[i].type == BigRed) {
+                        monsterAnimation(monsters[i], 3, sprites->bigRed);
+                    }
+                    else if (monsters[i].type == Golem) {
+                        monsterAnimation(monsters[i], 3, sprites->golem);
+                    }
+                    else if (monsters[i].type == Knight) {
+                        monsterAnimation(monsters[i], 3, sprites->knight);
+                    }
+                    else if (monsters[i].type == Guardian) {
+                        monsterAnimation(monsters[i], 3, sprites->guardian);
                     }
                 }
 
                 animationTimer++;
             }
             else {
-                al_draw_bitmap(playerImg->idle4, player->x, player->y, player->direc);
+                al_draw_bitmap_region(sprites->player, 97, 0, 32, 32, player->x, player->y, player->direc);
 
                 for (int i = 0; i < numMonsters; i++) {
-                    if (monsters[i].type == Troll) {
-                        monsterAnimation(monsters[i], 4, trollImg);
+                    if (monsters[i].type == Bandit) {
+                        monsterAnimation(monsters[i], 4, sprites->bandit);
                     }
-                    else if (monsters[i].type == bigRed) {
-                        monsterAnimation(monsters[i], 4, bigRedImg);
+                    else if (monsters[i].type == Wolf) {
+                        monsterAnimation(monsters[i], 4, sprites->wolf);
+                    }
+                    else if (monsters[i].type == Bear) {
+                        monsterAnimation(monsters[i], 4, sprites->bear);
+                    }
+                    else if (monsters[i].type == Troll) {
+                        monsterAnimation(monsters[i], 4, sprites->troll);
+                    }
+                    else if (monsters[i].type == BigRed) {
+                        monsterAnimation(monsters[i], 4, sprites->bigRed);
+                    }
+                    else if (monsters[i].type == Golem) {
+                        monsterAnimation(monsters[i], 4, sprites->golem);
+                    }
+                    else if (monsters[i].type == Knight) {
+                        monsterAnimation(monsters[i], 4, sprites->knight);
+                    }
+                    else if (monsters[i].type == Guardian) {
+                        monsterAnimation(monsters[i], 4, sprites->guardian);
                     }
                 }
 
                 animationTimer = 0;   
+            }
+
+            // magias
+            if (spellType && player->mana > 0) {
+                switch (spellType) {
+                    case magicMissile:
+                        spellDistance[0] = (monsterInRange.x - player->x) / 5;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 5;
+                        break;
+                    case fireball:
+                        spellDistance[0] = (monsterInRange.x - player->x) / 8;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 8;
+                        break;
+                    case lightning:
+                        spellDistance[0] = (monsterInRange.x - player->x) / 7;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 7;
+                        break;
+                    case iceshard:
+                        spellDistance[0] = (monsterInRange.x - player->x) / 8;
+                        spellDistance[1] = (monsterInRange.y - player->y) / 8;
+                        break;
+                }
+                spellCasted = spellType;
+                spellType = 0;
+            }
+            
+            switch (spellCasted) {
+                case magicMissile:
+                    drawSpellAnim(&spellCasted, &allMagics->spell[0], &spellCounter, spellDistance, *player, monsterInRange);
+                    break;
+                case fireball:
+                    drawSpellAnim(&spellCasted, &allMagics->spell[1], &spellCounter, spellDistance, *player, monsterInRange);
+                    break;
+                case lightning:
+                    drawSpellAnim(&spellCasted, &allMagics->spell[2], &spellCounter, spellDistance, *player, monsterInRange);
+                    break;
+                case iceshard:
+                    drawSpellAnim(&spellCasted, &allMagics->spell[3], &spellCounter, spellDistance, *player, monsterInRange);
+                    break;
             }
 
             // algum monstro esta dentro do combatRange
@@ -809,6 +858,29 @@ bool gameMainLoop (
             // andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 65, 0, "Profundidade: %d", *floorNumber);
 
+            if (*floorNumber == 0) {
+                if (player->x > 662) {
+                    al_draw_textf(font, al_map_rgb(239, 230, 10), 388, 450, 0, "Sequest... Salve a princesa e talvez você aprenda alguma coisa no caminho.");
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 440, 0, "Isso é um jogo educacional !!!");
+                }
+            }
+            else if (*floorNumber == 1) {
+                if (player->x > 848) {
+                    al_draw_textf(font, al_map_rgb(255, 10, 10), 848 - 60, 500, 0, "Use fireball(W) para queimar seus inimigos");
+                }
+                else if (player->x > 672) {
+                    al_draw_textf(font, al_map_rgb(255, 10, 10), player->x - 60, 500, 0, "Use fireball(W) para queimar seus inimigos");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 510, 0, "%d %d", player->x, player->y);
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 500, 0, "O fogo é constituído de uma mistura de gases em alta temperatura.");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 510, 0, "A luminosidade vista e o calor são provenientes da reação entre o");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 520, 0, "combustível (inimigos) e o comburente (oxigênio).");
+                }
+            }
+
             // quantidade de monstros no andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 75, 0, "Monstros: %d", numMonsters);
 
@@ -822,50 +894,5 @@ bool gameMainLoop (
     }
     else {
         return true;
-    }
-}
-
-// recebe um monstro e o num da sprite para ser desenhada na tela
-void monsterAnimation (
-    Monster monster,
-    int animationNum,
-    Sprites * monsterImg
-) {
-
-    if (monster.health > 0) {
-        switch (animationNum) {
-            case 1:
-                if (monster.angry) {
-                    al_draw_bitmap(monsterImg->walk1, monster.x, monster.y, monster.direc);
-                }
-                else {
-                    al_draw_bitmap(monsterImg->idle1, monster.x, monster.y, monster.direc);
-                }
-                break;
-            case 2:
-                if (monster.angry) {
-                    al_draw_bitmap(monsterImg->walk2, monster.x, monster.y, monster.direc);
-                }
-                else {
-                    al_draw_bitmap(monsterImg->idle2, monster.x, monster.y, monster.direc);
-                }
-                break;
-            case 3:
-                if (monster.angry) {
-                    al_draw_bitmap(monsterImg->walk3, monster.x, monster.y, monster.direc);
-                }
-                else {
-                    al_draw_bitmap(monsterImg->idle3, monster.x, monster.y, monster.direc);
-                }
-                break;
-            case 4:
-                if (monster.angry) {
-                    al_draw_bitmap(monsterImg->walk4, monster.x, monster.y, monster.direc);
-                }
-                else {
-                    al_draw_bitmap(monsterImg->idle4, monster.x, monster.y, monster.direc);
-                }
-                break;
-        }
     }
 }
