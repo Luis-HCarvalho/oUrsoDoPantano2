@@ -195,7 +195,7 @@ int main () {
         }
         else {
             srand(time(NULL));
-            numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 4) + 2;
+            numMonsters = rand() % (((mapsize.height * mapsize.width) / (32 * 4)) + 2);
         
             if (floorNumber < 2) {
                 typeMonsters = Bandit;
