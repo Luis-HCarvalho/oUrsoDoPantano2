@@ -25,7 +25,8 @@ bool gameMainLoop (
     AllMagics * allMagics,
     Player * player,
     int typeMonsters,
-    Sprites * sprites
+    Sprites * sprites,
+    int * secondTry;
 );
 
 int main () {
@@ -150,6 +151,7 @@ int main () {
     int mapLimRight;
     bool goingDown = true;
     char d, u;
+    int secondTry = 0; // se o jogador esta jogando depois de ter morrido aluma vez
 
     // init player
     Player player;
@@ -159,6 +161,9 @@ int main () {
         // mapa fixo para o player comprar itens, acessar baus, etc
         if (floorNumber == 0) {
             getMap("./maps/dungeonEntrance.txt", map, &mapsize);
+        }
+        else if (floorNumber == 25) {
+            getMap("./maps/princessFloor.txt", map, &mapsize);
         }
         else {
             d = (floorNumber / 10) + '0' ; // dezena
@@ -185,23 +190,35 @@ int main () {
         }
         player.y = displayHeight / 2;
 
-        if (floorNumber == 0) {
+        if (floorNumber == 0 || floorNumber == 25) {
             numMonsters = 0;
         }
         else {
             srand(time(NULL));
-            numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 3);
+            numMonsters = rand() % (((mapsize.height * mapsize.width) / 32) / 4) + 2;
         
-            if (floorNumber / 2 == 0) {
-                typeMonsters = rand() %  1;
+            if (floorNumber < 2) {
+                typeMonsters = Bandit;
+            }
+            else if (floorNumber < 5) {
+                typeMonsters = rand() %  2; // Bandit || Wolf 
+            }
+            else if (floorNumber < 8) {
+                typeMonsters = rand() %  2 + 1;  // Wolf || Bear
+            }
+            else if (floorNumber < 12) {
+                typeMonsters = rand() %  2 + 2;  // Bear || Troll
+            }
+            else if (floorNumber < 15) {
+                typeMonsters = rand() %  2 + 3;  // Troll || BigRed
+            }
+            else if (floorNumber < 20) {
+                typeMonsters = rand() %  2 + 4;  // BigRed  || Knight
             }
             else {
-                typeMonsters = rand() % (floorNumber / 2);
-
-                if (typeMonsters > 7) {
-                    typeMonsters = 0;
-                }
+                typeMonsters = Guardian;
             }
+
         }
 
         gameStatus = gameMainLoop(
@@ -219,8 +236,15 @@ int main () {
                 &allMagics,
                 &player,
                 typeMonsters,
-                &sprites
+                &sprites,
+                &secondTry
         );
+        
+        if (floorNumber == -1) {
+            // se o andar == -1 o player foi morto e aos stats devem ser resetados
+            secondTry++;
+            initPlayer(&player);
+        }
 
         switch (mapNav) {
             case 1:
@@ -309,7 +333,8 @@ bool gameMainLoop (
     //Sprites * playerImg,
     Player * player,
     int typeMonsters,
-    Sprites * sprites
+    Sprites * sprites,
+    int * secondTry
 ) {
     
     ALLEGRO_EVENT event;
@@ -360,6 +385,7 @@ bool gameMainLoop (
     int animationTimer = 0;
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
     int respawnTimer = 0;
+    int npcDirec;
 
     while (!exit && !*mapNav) {
         al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -435,6 +461,19 @@ bool gameMainLoop (
                 }
                 else if ((player->x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
                     *mapNav = 2;
+                }
+
+                // direção do posicionamento do sprite dos npcs (princesa / andar 25)
+                if (player->x > 630) {
+                    npcDirec = 0;
+                }
+                else {
+                    npcDirec = 1;
+                }
+
+                if (player->health <= 0) {
+                    *floorNumber = -1;  // andar da morte
+                    *mapNav = 1;
                 }
 
                 redraw = true;
@@ -530,8 +569,10 @@ bool gameMainLoop (
                 break;
         }
 
-        if(exit)
+        // sair do loop
+        if(exit) {
             break;
+        }
 
         if(redraw && al_is_event_queue_empty(queue)) {
             // construção do mapa (coloca os tiles no lugar)
@@ -610,10 +651,16 @@ bool gameMainLoop (
             al_draw_bitmap(*spellBorder, borderPos[0] + 126, borderPos[1], 0);
 
             // desenha os feitiçoes dentro das molduras
-            al_draw_bitmap(allMagics->spell[0].img[2], borderPos[0], borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[0].img[2], borderPos[0] - 10, borderPos[1] , 0);
             al_draw_bitmap(allMagics->spell[1].img[0], borderPos[0] + 50, borderPos[1] + 6, 0);
-            al_draw_bitmap(allMagics->spell[2].img[3], borderPos[0] + 92, borderPos[1] + 6, 0);
+            al_draw_bitmap(allMagics->spell[2].img[3], borderPos[0] + 70, borderPos[1] -10, 0);
             al_draw_bitmap(allMagics->spell[3].img[6], borderPos[0] + 134, borderPos[1] + 6, 0);
+
+            // consumo de mana por feitiço
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 15, borderPos[1] - 10, 0, "5");
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 50, borderPos[1] - 10, 0, "10");
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 92, borderPos[1] - 10, 0, "15");
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 134, borderPos[1] - 10, 0, "15");
 
             // desenha as keys dos ataques
             switch (spellCasted) {
@@ -653,6 +700,9 @@ bool gameMainLoop (
             if (animationTimer < 20) {
                 al_draw_bitmap_region(sprites->player, 0, 0, 32, 32, player->x, player->y, player->direc);
                 
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 0, 0, 32, 32, 630, 325, npcDirec);
+                }
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
                         monsterAnimation(monsters[i], 1, sprites->bandit);
@@ -684,6 +734,10 @@ bool gameMainLoop (
             }
             else if (animationTimer < 40) {
                 al_draw_bitmap_region(sprites->player, 33, 0, 32, 32, player->x, player->y, player->direc);
+
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 33, 0, 32, 32, 630, 325, npcDirec);
+                }
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
@@ -717,6 +771,10 @@ bool gameMainLoop (
             else if (animationTimer < 60) {
                 al_draw_bitmap_region(sprites->player, 65, 0, 32, 32, player->x, player->y, player->direc);
 
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 65, 0, 32, 32, 630, 325, npcDirec);
+                }
+
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
                         monsterAnimation(monsters[i], 3, sprites->bandit);
@@ -748,6 +806,10 @@ bool gameMainLoop (
             }
             else {
                 al_draw_bitmap_region(sprites->player, 97, 0, 32, 32, player->x, player->y, player->direc);
+
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 97, 0, 32, 32, 630, 325, npcDirec);
+                }
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
@@ -836,20 +898,8 @@ bool gameMainLoop (
             al_draw_textf(font, al_map_rgb(255, 255, 255), 90, 5, 0, "XP %d", player->xp);
 
             // barra de vida
-            if (player->health < 0) {
-                //desenha tela de morte
-                al_clear_to_color(al_map_rgb(0, 0, 0));
-                al_draw_textf(font, al_map_rgb(255, 255, 255), (displayWidth / 2 - 32), 60, 0, "GAME OVER");
-                al_draw_bitmap(playerImg->idle4, player->x, player->y, player->direc);
-                al_flip_display();
-                al_rest(10);
-                //sai do jogo
-                exit = true;
-            }
-            else {
-                al_draw_textf(font, al_map_rgb(255, 255, 255), (player->health + 30), 20, 0, "%d", player->health);
-                al_draw_filled_rectangle(20, 20, (player->health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
-            }
+            al_draw_textf(font, al_map_rgb(255, 255, 255), (player->health + 30), 20, 0, "%d", player->health);
+            al_draw_filled_rectangle(20, 20, (player->health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
 
             //barra de mana
             al_draw_textf(font, al_map_rgb(255, 255, 255), (player->mana + 30), 35, 0, "%d", player->mana);
@@ -858,6 +908,7 @@ bool gameMainLoop (
             // andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 65, 0, "Profundidade: %d", *floorNumber);
 
+            // textos de ajuda | educacional | dialogo
             if (*floorNumber == 0) {
                 if (player->x > 662) {
                     al_draw_textf(font, al_map_rgb(239, 230, 10), 388, 450, 0, "Sequest... Salve a princesa e talvez você aprenda alguma coisa no caminho.");
@@ -865,20 +916,65 @@ bool gameMainLoop (
                 else {
                     al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 440, 0, "Isso é um jogo educacional !!!");
                 }
+
+                if (*secondTry != 0) {
+                    if (*secondTry == 2) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "É melhor eu desistir logo", *secondTry);
+                    }
+                    else if (*secondTry == 4) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "Ta na hora de ir embora", *secondTry);
+                    }
+                    else if (*secondTry == 6) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "Eu não aguento mais", *secondTry);
+                    }
+                    else if (*secondTry == 8) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 30, player->y - 10, 0, "Já chega !!!", *secondTry);
+                    }
+                    else {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "Eu morri %d vezes na dungeon", *secondTry);
+                    }
+                }
             }
             else if (*floorNumber == 1) {
-                if (player->x > 848) {
-                    al_draw_textf(font, al_map_rgb(255, 10, 10), 848 - 60, 500, 0, "Use fireball(W) para queimar seus inimigos");
-                }
-                else if (player->x > 672) {
-                    al_draw_textf(font, al_map_rgb(255, 10, 10), player->x - 60, 500, 0, "Use fireball(W) para queimar seus inimigos");
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 510, 0, "%d %d", player->x, player->y);
+                al_draw_textf(font, al_map_rgb(12, 131, 250), 470, 500, 0, "Use magic missile(Q) para eliminar seus inimigos");
+            }
+            else if (*floorNumber == 3) {
+                if (player->x > 620) {
+                    al_draw_textf(font, al_map_rgb(255, 10, 10), 475, 500, 0, "Use fireball(W) para queimar seus inimigos");
                 }
                 else {
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 500, 0, "O fogo é constituído de uma mistura de gases em alta temperatura.");
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 510, 0, "A luminosidade vista e o calor são provenientes da reação entre o");
-                    al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 520, 0, "combustível (inimigos) e o comburente (oxigênio).");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 500, 0, "O fogo é constituído de uma mistura de gases em alta temperatura.");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 510, 0, "A luminosidade vista e o calor são provenientes da reação entre o");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 520, 0, "combustível (inimigos) e o comburente (oxigênio).");
                 }
+            }
+            else if (*floorNumber == 5) {
+                if (player->x > 620) {
+                    al_draw_textf(font, al_map_rgb(50, 10, 255), 470, 500, 0, "Use lightning(E) para eletrocutar seus inimigos");
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 500, 0, "Relâmpago é uma corrente elétrica muito intensa. O fenômeno é");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 510, 0, "consequência do rápido movimento de elétrons de um lugar para");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 520, 0, "outro. Os elétrons se movem tão rápido que fazem o ar ao seu");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 530, 0, "redor iluminar-se, resultando em um clarão e um aquecer-se, que");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 540, 0, "geram um som: o trovão.");
+                }
+            }
+            else if (*floorNumber == 7) {
+                if (player->x > 620) {
+                    al_draw_textf(font, al_map_rgb(12, 214, 250), 470, 500, 0, "Use iceshard(R) para congelar seus inimigos");
+                }
+                else {
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 500, 0, "A matéria é constituída de minúsculas partículas. De modo que,");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 510, 0, "simplificadamente, o que diferencia um estado físico de outro é ");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 520, 0, "a organização dessas partículas, se elas estão mais próximas umas");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 530, 0, "às outras ou mais afastadas.");
+                    al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 540, 0, "");
+                }
+            }
+            else if (*floorNumber == 25) {
+                al_draw_textf(font, al_map_rgb(255, 255, 255), 585, 320, 0, "Obrigada por me salvar !");
+                al_draw_textf(font, al_map_rgb(239, 230, 30), 400, 500, 0, "Você encontrou a princesa, aperte [ESCAPE] para sair da dungeon");
             }
 
             // quantidade de monstros no andar
@@ -889,7 +985,8 @@ bool gameMainLoop (
             redraw = false;
         }
     }
-    if (player->health <= 0 || exit) {
+
+    if (exit) {
         return false;
     }
     else {
