@@ -25,7 +25,8 @@ bool gameMainLoop (
     AllMagics * allMagics,
     Player * player,
     int typeMonsters,
-    Sprites * sprites
+    Sprites * sprites,
+    int * secondTry;
 );
 
 int main () {
@@ -150,6 +151,7 @@ int main () {
     int mapLimRight;
     bool goingDown = true;
     char d, u;
+    int secondTry = 0; // se o jogador esta jogando depois de ter morrido aluma vez
 
     // init player
     Player player;
@@ -159,6 +161,9 @@ int main () {
         // mapa fixo para o player comprar itens, acessar baus, etc
         if (floorNumber == 0) {
             getMap("./maps/dungeonEntrance.txt", map, &mapsize);
+        }
+        else if (floorNumber == 25) {
+            getMap("./maps/princessFloor.txt", map, &mapsize);
         }
         else {
             d = (floorNumber / 10) + '0' ; // dezena
@@ -185,7 +190,7 @@ int main () {
         }
         player.y = displayHeight / 2;
 
-        if (floorNumber == 0) {
+        if (floorNumber == 0 || floorNumber == 25) {
             numMonsters = 0;
         }
         else {
@@ -231,8 +236,15 @@ int main () {
                 &allMagics,
                 &player,
                 typeMonsters,
-                &sprites
+                &sprites,
+                &secondTry
         );
+        
+        if (floorNumber == -1) {
+            // se o andar == -1 o player foi morto e aos stats devem ser resetados
+            secondTry++;
+            initPlayer(&player);
+        }
 
         switch (mapNav) {
             case 1:
@@ -321,7 +333,8 @@ bool gameMainLoop (
     //Sprites * playerImg,
     Player * player,
     int typeMonsters,
-    Sprites * sprites
+    Sprites * sprites,
+    int * secondTry
 ) {
     
     ALLEGRO_EVENT event;
@@ -372,6 +385,7 @@ bool gameMainLoop (
     int animationTimer = 0;
     int attackCooldown = 0;    // tempo de espera para ataque dos monstros
     int respawnTimer = 0;
+    int npcDirec;
 
     while (!exit && !*mapNav) {
         al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -447,6 +461,19 @@ bool gameMainLoop (
                 }
                 else if ((player->x < maplim.leftBorder + 4) && (*floorNumber > 0)) {
                     *mapNav = 2;
+                }
+
+                // direção do posicionamento do sprite dos npcs (princesa / andar 25)
+                if (player->x > 630) {
+                    npcDirec = 0;
+                }
+                else {
+                    npcDirec = 1;
+                }
+
+                if (player->health <= 0) {
+                    *floorNumber = -1;  // andar da morte
+                    *mapNav = 1;
                 }
 
                 redraw = true;
@@ -542,8 +569,10 @@ bool gameMainLoop (
                 break;
         }
 
-        if(exit)
+        // sair do loop
+        if(exit) {
             break;
+        }
 
         if(redraw && al_is_event_queue_empty(queue)) {
             // construção do mapa (coloca os tiles no lugar)
@@ -627,6 +656,12 @@ bool gameMainLoop (
             al_draw_bitmap(allMagics->spell[2].img[3], borderPos[0] + 70, borderPos[1] -10, 0);
             al_draw_bitmap(allMagics->spell[3].img[6], borderPos[0] + 134, borderPos[1] + 6, 0);
 
+            // consumo de mana por feitiço
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 15, borderPos[1] - 10, 0, "5");
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 50, borderPos[1] - 10, 0, "10");
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 92, borderPos[1] - 10, 0, "15");
+            al_draw_textf(font, al_map_rgb(10, 100, 255), borderPos[0] + 134, borderPos[1] - 10, 0, "15");
+
             // desenha as keys dos ataques
             switch (spellCasted) {
                 case 0:
@@ -665,6 +700,9 @@ bool gameMainLoop (
             if (animationTimer < 20) {
                 al_draw_bitmap_region(sprites->player, 0, 0, 32, 32, player->x, player->y, player->direc);
                 
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 0, 0, 32, 32, 630, 325, npcDirec);
+                }
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
                         monsterAnimation(monsters[i], 1, sprites->bandit);
@@ -696,6 +734,10 @@ bool gameMainLoop (
             }
             else if (animationTimer < 40) {
                 al_draw_bitmap_region(sprites->player, 33, 0, 32, 32, player->x, player->y, player->direc);
+
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 33, 0, 32, 32, 630, 325, npcDirec);
+                }
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
@@ -729,6 +771,10 @@ bool gameMainLoop (
             else if (animationTimer < 60) {
                 al_draw_bitmap_region(sprites->player, 65, 0, 32, 32, player->x, player->y, player->direc);
 
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 65, 0, 32, 32, 630, 325, npcDirec);
+                }
+
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
                         monsterAnimation(monsters[i], 3, sprites->bandit);
@@ -760,6 +806,10 @@ bool gameMainLoop (
             }
             else {
                 al_draw_bitmap_region(sprites->player, 97, 0, 32, 32, player->x, player->y, player->direc);
+
+                if (*floorNumber == 25) {
+                    al_draw_bitmap_region(sprites->princess, 97, 0, 32, 32, 630, 325, npcDirec);
+                }
 
                 for (int i = 0; i < numMonsters; i++) {
                     if (monsters[i].type == Bandit) {
@@ -848,13 +898,9 @@ bool gameMainLoop (
             al_draw_textf(font, al_map_rgb(255, 255, 255), 90, 5, 0, "XP %d", player->xp);
 
             // barra de vida
-            if (player->health < 0) {
-                exit = true;
-            }
-            else {
-                al_draw_textf(font, al_map_rgb(255, 255, 255), (player->health + 30), 20, 0, "%d", player->health);
-                al_draw_filled_rectangle(20, 20, (player->health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
-            }
+            al_draw_textf(font, al_map_rgb(255, 255, 255), (player->health + 30), 20, 0, "%d", player->health);
+            al_draw_filled_rectangle(20, 20, (player->health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
+
 
             //barra de mana
             al_draw_textf(font, al_map_rgb(255, 255, 255), (player->mana + 30), 35, 0, "%d", player->mana);
@@ -863,12 +909,31 @@ bool gameMainLoop (
             // andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 65, 0, "Profundidade: %d", *floorNumber);
 
+            // textos de ajuda | educacional | dialogo
             if (*floorNumber == 0) {
                 if (player->x > 662) {
                     al_draw_textf(font, al_map_rgb(239, 230, 10), 388, 450, 0, "Sequest... Salve a princesa e talvez você aprenda alguma coisa no caminho.");
                 }
                 else {
                     al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 60, 440, 0, "Isso é um jogo educacional !!!");
+                }
+
+                if (*secondTry != 0) {
+                    if (*secondTry == 2) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "É melhor eu desistir logo", *secondTry);
+                    }
+                    else if (*secondTry == 4) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "Ta na hora de ir embora", *secondTry);
+                    }
+                    else if (*secondTry == 6) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "Eu não aguento mais", *secondTry);
+                    }
+                    else if (*secondTry == 8) {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 30, player->y - 10, 0, "Já chega !!!", *secondTry);
+                    }
+                    else {
+                        al_draw_textf(font, al_map_rgb(255, 255, 255), player->x - 50, player->y - 10, 0, "Eu morri %d vezes na dungeon", *secondTry);
+                    }
                 }
             }
             else if (*floorNumber == 1) {
@@ -908,6 +973,10 @@ bool gameMainLoop (
                     al_draw_textf(font, al_map_rgb(255, 255, 255), 400, 540, 0, "");
                 }
             }
+            else if (*floorNumber == 25) {
+                al_draw_textf(font, al_map_rgb(255, 255, 255), 585, 320, 0, "Obrigada por me salvar !");
+                al_draw_textf(font, al_map_rgb(239, 230, 30), 400, 500, 0, "Você encontrou a princesa, aperte [ESCAPE] para sair da dungeon");
+            }
 
             // quantidade de monstros no andar
             al_draw_textf(font, al_map_rgb(255, 255, 255), 20 , 75, 0, "Monstros: %d", numMonsters);
@@ -917,7 +986,8 @@ bool gameMainLoop (
             redraw = false;
         }
     }
-    if (player->health <= 0 || exit) {
+
+    if (exit) {
         return false;
     }
     else {

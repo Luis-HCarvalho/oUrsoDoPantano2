@@ -14,4 +14,4 @@ run:
 
 clean:
 	@rm oUrsoDoPantano2.o
-	@rm ./maps/map*
+
