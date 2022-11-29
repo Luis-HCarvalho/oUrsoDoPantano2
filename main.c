@@ -901,7 +901,6 @@ bool gameMainLoop (
             al_draw_textf(font, al_map_rgb(255, 255, 255), (player->health + 30), 20, 0, "%d", player->health);
             al_draw_filled_rectangle(20, 20, (player->health + 20), 30, al_map_rgba_f(255, 0, 0, 0.5));
 
-
             //barra de mana
             al_draw_textf(font, al_map_rgb(255, 255, 255), (player->mana + 30), 35, 0, "%d", player->mana);
             al_draw_filled_rectangle(20, 35, (player->mana + 20), 42, al_map_rgba_f(0, 0, 255, 0.5));
