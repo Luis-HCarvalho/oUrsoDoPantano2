@@ -1,5 +1,5 @@
 # oUrsoDoPantano2
-
+<h2>A versão para visual studio esta na branch vWindows</h2>
 <h3>Como rodar o jogo: </h3>
 <ul>
   <li>(Linux) Digite no terminal:  "make plataform=linux"</li>
