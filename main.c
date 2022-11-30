@@ -143,7 +143,7 @@ int main () {
     al_start_timer(timer);
     
     int numMonsters = 0;
-    int typeMonsters;
+    int typeMonsters = 0;
     int floorNumber = 0;
     int mapNav = 0;
     bool gameStatus = true;    // determina se o jogo fecha ou continua rodando
@@ -152,7 +152,8 @@ int main () {
     bool goingDown = true;
     char d, u;
     int secondTry = 0; // se o jogador esta jogando depois de ter morrido aluma vez
-
+    int aux;
+    
     // init player
     Player player;
     initPlayer(&player);
@@ -195,7 +196,11 @@ int main () {
         }
         else {
             srand(time(NULL));
-            numMonsters = rand() % (((mapsize.height * mapsize.width) / (32 * 4)) + 2);
+            aux = (((mapsize.height * mapsize.width) / (32 * 4)) + 2);
+            if (aux < 2) {
+                aux = 2;
+            }
+            numMonsters = rand() % aux;
         
             if (floorNumber < 2) {
                 typeMonsters = Bandit;
